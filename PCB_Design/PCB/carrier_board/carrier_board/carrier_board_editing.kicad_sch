@@ -226,19 +226,19 @@
       (reference "R4") (unit 1) (value "10k") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/93ce031a-2522-482c-be47-db911c583078"
-      (reference "R5") (unit 1) (value "1.25M") (footprint "carrier_board_fp:0603FP")
+      (reference "R5") (unit 1) (value "560k") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/e1d372d3-6854-4449-a042-68ff77a509d7"
-      (reference "R6") (unit 1) (value "510k") (footprint "carrier_board_fp:0603FP")
+      (reference "R6") (unit 1) (value "220k") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/88025be2-3c2c-4cbf-a874-a3a3b180ec14"
       (reference "R7") (unit 1) (value "100k") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/7874bbf3-7d5f-4f48-aae9-015bebfa11ea"
-      (reference "R8") (unit 1) (value "1.25M") (footprint "carrier_board_fp:0603FP")
+      (reference "R8") (unit 1) (value "560k") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/8672cec3-27dd-41c1-ba12-9c629754a825"
-      (reference "R9") (unit 1) (value "510k") (footprint "carrier_board_fp:0603FP")
+      (reference "R9") (unit 1) (value "220k") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/d0ba7508-c77f-41d2-898e-fd31c8ee1168"
       (reference "R10") (unit 1) (value "100k") (footprint "carrier_board_fp:0603FP")
@@ -250,19 +250,25 @@
       (reference "R12") (unit 1) (value "100") (footprint "Resistor_SMD:R_0603_1608Metric")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/5d2b48ab-4c22-4382-a18b-8b4bfc5e5fc1"
-      (reference "R13") (unit 1) (value "200k") (footprint "Resistor_SMD:R_0603_1608Metric")
+      (reference "R13") (unit 1) (value "560k") (footprint "Resistor_SMD:R_0603_1608Metric")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/b726fa77-1b53-4a87-9b26-29e826f17f15"
-      (reference "R14") (unit 1) (value "200k") (footprint "Resistor_SMD:R_0603_1608Metric")
+      (reference "R14") (unit 1) (value "220k") (footprint "Resistor_SMD:R_0603_1608Metric")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/d0773b2e-89a9-4ac4-b5c0-40ca97094c82"
       (reference "R15") (unit 1) (value "100") (footprint "Resistor_SMD:R_0603_1608Metric")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/e7cac346-aba4-4093-a55c-79fd03807afe"
-      (reference "R16") (unit 1) (value "200k") (footprint "Resistor_SMD:R_0603_1608Metric")
+      (reference "R16") (unit 1) (value "560k") (footprint "Resistor_SMD:R_0603_1608Metric")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/9eb35d4f-0053-4990-953d-6419dcf7c75a"
-      (reference "R17") (unit 1) (value "200k") (footprint "Resistor_SMD:R_0603_1608Metric")
+      (reference "R17") (unit 1) (value "220k") (footprint "Resistor_SMD:R_0603_1608Metric")
+    )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/39dcd21e-c0aa-4e5c-afe3-c9864e992fb2"
+      (reference "R18") (unit 1) (value "100k") (footprint "Resistor_SMD:R_0603_1608Metric")
+    )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/9c2e0e95-a4a8-46a7-845c-84fb0b63cfc3"
+      (reference "R19") (unit 1) (value "100k") (footprint "Resistor_SMD:R_0603_1608Metric")
     )
     (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/ca46205a-c9e6-4a62-93ed-47207ea2161c"
       (reference "U1") (unit 1) (value "Raspberry_Pi_Pico") (footprint "MCU_RaspberryPi_and_Boards:RPi_Pico_SMD_TH")
