@@ -157,7 +157,7 @@
       (reference "C5") (unit 1) (value "2.2uF") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/78e5f904-fd2d-49b9-9481-d89d8dc8d0f8"
-      (reference "C6") (unit 1) (value "220uF") (footprint "carrier_board_fp:0603FP")
+      (reference "C6") (unit 1) (value "220uF") (footprint "Capacitor_SMD:CP_Elec_10x10.5")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/314d82cc-4e4b-4e54-84fb-7d0a8dbf5aa7"
       (reference "C7") (unit 1) (value "470pF") (footprint "carrier_board_fp:0603FP")

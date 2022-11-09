@@ -2235,7 +2235,7 @@
     (property "Value" "220uF" (id 1) (at 160.02 65.4049 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "carrier_board_fp:0603FP" (id 2) (at 157.1752 67.945 0)
+    (property "Footprint" "Capacitor_SMD:CP_Elec_10x10.5" (id 2) (at 157.1752 67.945 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 156.21 64.135 0)
