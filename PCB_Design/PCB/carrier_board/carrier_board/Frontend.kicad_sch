@@ -2676,7 +2676,7 @@
     (property "Value" "10uF" (id 1) (at 193.675 48.2599 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "carrier_board_fp:0603FP" (id 2) (at 190.8302 50.8 0)
+    (property "Footprint" "Capacitor_SMD:C_1206_3216Metric" (id 2) (at 190.8302 50.8 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 189.865 46.99 0)

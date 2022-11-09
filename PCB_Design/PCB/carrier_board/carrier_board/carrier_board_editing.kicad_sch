@@ -151,7 +151,7 @@
       (reference "BNC3") (unit 1) (value "Amplitude") (footprint "Connector_Coaxial:SMA_Amphenol_132134_Vertical")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/c6883e11-1af3-491c-bb16-5ed62792931c"
-      (reference "C4") (unit 1) (value "10uF") (footprint "carrier_board_fp:0603FP")
+      (reference "C4") (unit 1) (value "10uF") (footprint "Capacitor_SMD:C_1206_3216Metric")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/76b5fd9a-d639-462b-af23-121244a6c07a"
       (reference "C5") (unit 1) (value "2.2uF") (footprint "carrier_board_fp:0603FP")
