@@ -63,6 +63,9 @@
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/ca9c9a40-ed56-4ca0-aae3-36a29a1adc58"
       (reference "#PWR03") (unit 1) (value "GNDA") (footprint "")
     )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/cedcd5a6-ba48-47a6-a070-9a337dbe6c66"
+      (reference "#PWR04") (unit 1) (value "GND") (footprint "")
+    )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/31537bf4-18c8-4821-85b2-542ded0e4112"
       (reference "#PWR0101") (unit 1) (value "GNDA") (footprint "")
     )
@@ -74,6 +77,9 @@
     )
     (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/243f95a6-33f1-4c40-ae86-b7ab5b2efee4"
       (reference "#PWR0104") (unit 1) (value "GNDA") (footprint "")
+    )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/7e43edde-4bad-4b66-90c6-3c31a141d7c6"
+      (reference "#PWR0105") (unit 1) (value "GND") (footprint "")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/a1074f69-73ea-4c2f-a63c-b3295a22ef4c"
       (reference "#PWR0106") (unit 1) (value "GNDA") (footprint "")
@@ -117,6 +123,12 @@
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/bd3b654b-e4c9-4e72-b791-1b4cc1007a5a"
       (reference "#PWR0119") (unit 1) (value "GNDA") (footprint "")
     )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/d53f4a53-3c24-4632-a959-bd7b3ba2d2b2"
+      (reference "#PWR0120") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/f55e1db3-8d27-4997-a3fa-629ac75d3518"
+      (reference "#PWR0121") (unit 1) (value "GND") (footprint "")
+    )
     (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/d83c912e-c141-4073-9911-5d21b7565ca5"
       (reference "#PWR0122") (unit 1) (value "GND") (footprint "")
     )
@@ -132,6 +144,9 @@
     (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/0bf62766-d892-4407-8d88-3cc26b3259bd"
       (reference "#PWR0126") (unit 1) (value "GNDA") (footprint "")
     )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/57408bf0-3a58-40db-9fa0-3a18fb28b9c0"
+      (reference "#PWR0127") (unit 1) (value "GND") (footprint "")
+    )
     (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/f1fc886a-1cab-43f4-bc43-f94503ce96c6"
       (reference "#PWR0128") (unit 1) (value "GND") (footprint "")
     )
@@ -141,6 +156,18 @@
     (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/8091c9c9-578b-49d3-8f11-db75e506f5a7"
       (reference "#PWR0130") (unit 1) (value "GND") (footprint "")
     )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/99799b3f-9dcb-4451-aa1b-c393247cd945"
+      (reference "#PWR0131") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/d60f0f08-b915-4d02-9fcc-390296c5be09"
+      (reference "#PWR0132") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/50cdb8d3-f219-4515-8ca9-eb4a70436c98"
+      (reference "#PWR0133") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/24b012a7-e831-459c-99af-7a281e741bd7"
+      (reference "#PWR0134") (unit 1) (value "GND") (footprint "")
+    )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/1b08a3df-076c-4e80-9126-93446604e1b1"
       (reference "BNC1") (unit 1) (value "Trigger") (footprint "Connector_Coaxial:SMA_Amphenol_132134_Vertical")
     )
@@ -149,6 +176,9 @@
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/7771467f-c869-4ed9-8852-f59c1d12722a"
       (reference "BNC3") (unit 1) (value "Amplitude") (footprint "Connector_Coaxial:SMA_Amphenol_132134_Vertical")
+    )
+    (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/a987c412-ef1d-4aee-94d9-d61bce77be2d"
+      (reference "C1") (unit 1) (value "100nF") (footprint "Capacitor_SMD:C_0603_1608Metric")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/c6883e11-1af3-491c-bb16-5ed62792931c"
       (reference "C4") (unit 1) (value "10uF") (footprint "Capacitor_SMD:C_1206_3216Metric")
@@ -223,7 +253,7 @@
       (reference "R3") (unit 1) (value "12k") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/aad3fb4d-b04f-423a-8cf4-ea94658af5f9"
-      (reference "R4") (unit 1) (value "10k") (footprint "carrier_board_fp:0603FP")
+      (reference "R4") (unit 1) (value "300") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/93ce031a-2522-482c-be47-db911c583078"
       (reference "R5") (unit 1) (value "560k") (footprint "carrier_board_fp:0603FP")
