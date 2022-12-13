@@ -247,10 +247,10 @@
       (reference "R1") (unit 1) (value "1k") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/b3445446-62a5-4a9f-9329-a135b7501be9"
-      (reference "R2") (unit 1) (value "10k") (footprint "carrier_board_fp:0603FP")
+      (reference "R2") (unit 1) (value "12k") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/9850edad-7409-4635-8693-9f8cb451311d"
-      (reference "R3") (unit 1) (value "12k") (footprint "carrier_board_fp:0603FP")
+      (reference "R3") (unit 1) (value "20k") (footprint "carrier_board_fp:0603FP")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/aad3fb4d-b04f-423a-8cf4-ea94658af5f9"
       (reference "R4") (unit 1) (value "300") (footprint "carrier_board_fp:0603FP")
