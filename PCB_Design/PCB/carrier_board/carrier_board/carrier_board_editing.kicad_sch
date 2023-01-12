@@ -93,7 +93,7 @@
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/9dee9248-194f-4b51-9230-6152a2f55ad6"
       (reference "#PWR0109") (unit 1) (value "GNDA") (footprint "")
     )
-    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/a0e17683-f4ae-42e8-be4a-a5b4d66dd725"
+    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/e98e3234-4aef-480d-a8f0-23b6c079ce5a"
       (reference "#PWR0110") (unit 1) (value "GND") (footprint "")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/01d82446-8809-43cd-bbb8-6c1a3d3e271c"
@@ -129,16 +129,16 @@
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/f55e1db3-8d27-4997-a3fa-629ac75d3518"
       (reference "#PWR0121") (unit 1) (value "GND") (footprint "")
     )
-    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/d83c912e-c141-4073-9911-5d21b7565ca5"
+    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/93bdaa8e-7b22-4d5d-a9c2-4ea7e89fea70"
       (reference "#PWR0122") (unit 1) (value "GND") (footprint "")
     )
-    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/29f582aa-5b24-4628-96c0-10e6802a9113"
+    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/c32c3e59-ea9e-43c7-988e-b3e4f38c85d2"
       (reference "#PWR0123") (unit 1) (value "GND") (footprint "")
     )
-    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/1d471621-ab80-42c0-8c00-fe6000620e78"
+    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/a62d9bd7-1b0a-4df8-8894-7de80f6a67be"
       (reference "#PWR0124") (unit 1) (value "GND") (footprint "")
     )
-    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/0fa51e6a-7e87-426b-8c62-5ee4504e4931"
+    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/54628d6a-8c32-41b9-b43f-db7e19521ee4"
       (reference "#PWR0125") (unit 1) (value "GND") (footprint "")
     )
     (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/0bf62766-d892-4407-8d88-3cc26b3259bd"
@@ -149,12 +149,6 @@
     )
     (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/f1fc886a-1cab-43f4-bc43-f94503ce96c6"
       (reference "#PWR0128") (unit 1) (value "GND") (footprint "")
-    )
-    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/f1f53b6d-46a4-4a2d-ad16-5e3f16f23832"
-      (reference "#PWR0129") (unit 1) (value "GND") (footprint "")
-    )
-    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/8091c9c9-578b-49d3-8f11-db75e506f5a7"
-      (reference "#PWR0130") (unit 1) (value "GND") (footprint "")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/99799b3f-9dcb-4451-aa1b-c393247cd945"
       (reference "#PWR0131") (unit 1) (value "GND") (footprint "")
@@ -167,6 +161,9 @@
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/24b012a7-e831-459c-99af-7a281e741bd7"
       (reference "#PWR0134") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/94dd24de-10e4-48ed-9afa-d0cc4e4b037e/64df00d8-1954-42bd-a8c4-0a4065ab0584"
+      (reference "#PWR?") (unit 1) (value "GND") (footprint "")
     )
     (path "/6dbe7301-598d-49c6-8ec2-ee993c11045d/1b08a3df-076c-4e80-9126-93446604e1b1"
       (reference "BNC1") (unit 1) (value "Trigger") (footprint "Connector_Coaxial:SMA_Amphenol_132134_Vertical")
