@@ -86,7 +86,11 @@ char Encoder::reader(){
 		//button has been pressed, released and pressed again
 		delay(50);
 		while (digitalRead(ENC_SW) == LOW){}
-		if (millis() - lastButtonPress > 100) { // This line added to prevent bouncing back of the button
+		if (millis() - lastButtonPress > 1200) {
+			lastButtonPress = millis();
+			return 'h';
+		}
+		else if (millis() - lastButtonPress > 100) { // This line added to prevent bouncing back of the button
 			lastButtonPress = millis();
 			return 'c';
 		}

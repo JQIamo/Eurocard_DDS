@@ -7,6 +7,9 @@
 #include "LCD.h"
 #include "LinkedList.h"
 #include <string> 
+
+extern uint8_t channel_index;
+
 class Menu {
 public:
   Menu(const char * display_name, LCD * display);
@@ -76,10 +79,38 @@ class Freq_min: public Freq_max{
     virtual void exit();
 };
 
+class Channel_set: public Menu{
+  public:
+    Channel_set(const char * display_name, LCD * display);
+    int current_channel = channel_index;
+    virtual void update();
+    virtual void process(char c);
+    char place_holder[17];
+  private:
+    virtual void exit();
+};
+
+class Static_out: public Menu{
+  public:
+    Static_out(const char * display_name, LCD * display);
+    long current_freq;
+    uint8_t cursor;
+    char place_holder[17];
+    virtual void enter();
+    virtual void checker();
+    virtual void cursor_update();
+    virtual void update();
+    virtual void process(char c);
+};
+
+
+
 extern Root root;
 extern Menu analog_setting;
 extern Freq_max freq_max;
 extern Freq_min freq_min;
 extern A_switch analog_switch;
+extern Channel_set channel_set;
+extern Static_out static_out;
 extern Back back;
 #endif

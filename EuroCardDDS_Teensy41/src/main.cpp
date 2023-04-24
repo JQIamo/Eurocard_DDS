@@ -3,12 +3,15 @@
 
 #include <SetListArduino.h>
 #include <SPI.h>
+#include <EEPROM.h>
 
 #include "LCD.h"
 #include "menus.h"
 #include "pin_assign.h"
 #include <AD9910.h>
 #include "encoder.h"
+
+
 
 SetListArduino SetListImage(SETLIST_TRIG);
 
@@ -21,6 +24,8 @@ void setup() {
   delay(1000);
   SPI.begin(); // SPI is begun before lcd intentionally since I used the MISO pin for the lcd control
   delay(50);
+  Serial5.begin(115200);
+  delay(50);
   pinMode(LCD_RST, OUTPUT);
   digitalWriteFast(LCD_RST, HIGH);
   SPI1.begin();
@@ -29,8 +34,16 @@ void setup() {
   lcd.begin();
   lcd.cursor();
 
+
+  char name_holder[17];
+  channel_index = EEPROM.read(0);
+  sprintf(name_holder,"Channel:%u",channel_index);
+  Channel_set channel_set(name_holder, &lcd);
+
   root.add(&analog_switch);
   root.add(&analog_setting);
+  root.add(&static_out);
+  root.add(&channel_set);
   analog_setting.add(&freq_max);
   analog_setting.add(&freq_min);
   analog_setting.add(&back);
@@ -51,7 +64,7 @@ void setup() {
   DDS0.setFreq(10000000);
   delay(10);
  
-  SetListImage.registerDevice(DDS0, 0);
+  SetListImage.registerDevice(DDS0, channel_index);
   
   SetListImage.registerCommand("f", 0, setFreq0);
   SetListImage.registerCommand("w", 0, setWave0);
@@ -64,7 +77,12 @@ int analog_amp;
 int analog_freq;
 
 void loop() {
-   SetListImage.readSerial(); 
+   SetListImage.readSerial(0); 
+   if (SetListImage.get_buffer()[0]=='\0'){
+    SetListImage.readSerial(5);
+   }else{
+    Serial5.print(SetListImage.get_buffer());
+   }
    char encoder_active = encoder.reader();
    if (encoder_active){
    root._active->process(encoder_active);

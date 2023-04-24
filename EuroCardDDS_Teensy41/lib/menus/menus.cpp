@@ -5,6 +5,7 @@
 #include <string>
 #include <AD9910.h>
 #include "encoder.h"
+#include <EEPROM.h>
 
 /*
  The containing relation of the menus (which is realized by Linkedlist library) is:
@@ -15,6 +16,7 @@
                             freq_min
                             back
                             }
+            channel_set
           }
 */
 
@@ -236,9 +238,116 @@ void Freq_min::checker(){
   }
 }
 
+Channel_set::Channel_set(const char * display_name, LCD * output)
+  : Menu(display_name, output){};
+
+void Channel_set::update(){
+  sprintf(place_holder, "Channel:%i",current_channel);
+  strcpy(_display_name, place_holder);
+  _display->setCursor(0, 0);
+  _display->printer(_display_name);
+  _display->setCursor(0, 1);
+  _display->printer("Press To Return");
+}
+
+void Channel_set::process(char c){
+  if (c == 'c'){
+    exit();
+  }else{
+    if (c == '+'){
+    current_channel++;
+    }else if (c == '-'){
+    current_channel--;
+    }else if (c == 'p'){
+    current_channel ++;
+    }else if (c == 'P'){
+    current_channel ++;
+    }else if (c == 'm'){
+    current_channel --;
+    }else if (c == 'M'){
+    current_channel --;
+    }
+  if (current_channel < 0){current_channel = 0;}
+    else if (current_channel > 7){current_channel = 9;}
+  update();
+  } 
+}
+
+void Channel_set::exit(){
+  channel_index = current_channel; // Set the range to the DDS
+  EEPROM.update(0,channel_index);
+  _parent->enter();
+};
+
+Static_out::Static_out(const char * display_name, LCD * output)
+  : Menu(display_name, output){};
+
+void Static_out::enter(){
+  current_freq = DDS0._freq[0];
+  sprintf(place_holder,"Freq:%9liHz",current_freq);
+  _display->setCursor(0, 0);
+  _display->printer(_display_name);
+  _display->setCursor(7, 1);
+  _display->write(0b00010111);
+  cursor = 6;
+}
+
+void Static_out::cursor_update(){
+  _display->setCursor(13-cursor, 1);
+  _display->write(0b00010111);
+}
+
+void Static_out::process(char c){
+  if (c == 'c'){
+    // Set the frequency limit and leave to the parent menu
+    if(cursor == 6 || cursor == 3){
+      cursor -= 3;
+    }else{
+      cursor = 6;
+    }
+    cursor_update();
+  }else if (c == 'h'){
+    exit();
+  }else{
+    if (c == '+'){
+    current_freq += pow(10,cursor);
+    }else if (c == '-'){
+    current_freq -= pow(10,cursor);
+    }else if (c == 'p'){
+    current_freq += 10 * pow(10,cursor);
+    }else if (c == 'P'){
+    current_freq += 100 * pow(10,cursor);
+    }else if (c == 'm'){
+    current_freq -= 10 * pow(10,cursor);
+    }else if (c == 'M'){
+    current_freq -= 100 * pow(10,cursor);
+    }
+  checker();
+  update();
+  } 
+}
+
+void Static_out::checker(){
+  if (current_freq<1000){
+    current_freq = 1000;
+  }else if (current_freq>4e8){
+    current_freq = 400000000;
+  }
+}
+
+void Static_out::update(){
+  DDS0.setWave(current_freq,0,100);
+  sprintf(place_holder,"Freq:%9liHz",current_freq);
+  _display->setCursor(0, 0);
+  _display->printer(place_holder);
+}
+
+uint8_t channel_index = 0;
+
 Root root("root", &lcd);
 Menu analog_setting("ANLG_SET", &lcd);
 Freq_max freq_max("MaxFreq:200MHz", &lcd);
 Freq_min freq_min("MinFreq:100MHz", &lcd);
 A_switch analog_switch("ANLG:OFF", &lcd);
+Static_out static_out("Static_Mode",&lcd);
 Back back("BACK", &lcd);
