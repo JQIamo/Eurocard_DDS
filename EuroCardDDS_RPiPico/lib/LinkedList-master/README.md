@@ -18,6 +18,10 @@ With a simple but powerful caching algorithm, you can get subsequent objects muc
 
 **If you are here, because another Library requires this class, just don't waste time reading bellow. Install and ready.**
 
+## Tests
+
+`cd` to this directory and run `g++ -std=c++14 extras/test/tests.cpp -o tests && ./tests`
+
 -------------------------
 
 ## Getting started
@@ -95,7 +99,7 @@ myList.set(2, myObject);
 myList.set(myList.size() - 1, myObject);
 ```
 
-#### Removing elements
+#### Deleting elements
 ```c++
 // remove(index) will remove and return the element at index
 

@@ -43,7 +43,8 @@ protected:
 
 public:
 	LinkedList();
-	~LinkedList();
+	LinkedList(int sizeIndex, T _t); //initiate list size and default value
+	virtual ~LinkedList();
 
 	/*
 		Returns current size of LinkedList
@@ -67,7 +68,6 @@ public:
 	virtual bool unshift(T);
 	/*
 		Set the object at index, with T;
-		Increment _size;
 	*/
 	virtual bool set(int index, T);
 	/*
@@ -100,6 +100,11 @@ public:
 		Sort the list, given a comparison function
 	*/
 	virtual void sort(int (*cmp)(T &, T &));
+
+		// add support to array brakets [] operator
+	inline T& operator[](int index); 
+	inline T& operator[](size_t& i) { return this->get(i); }
+  	inline const T& operator[](const size_t& i) const { return this->get(i); }
 
 };
 
@@ -164,12 +169,19 @@ ListNode<T>* LinkedList<T>::getNode(int index){
 		return current;
 	}
 
-	return false;
+	return NULL;
 }
 
 template<typename T>
 int LinkedList<T>::size(){
 	return _size;
+}
+
+template<typename T>
+LinkedList<T>::LinkedList(int sizeIndex, T _t){
+	for (int i = 0; i < sizeIndex; i++){
+		add(_t);
+	}
 }
 
 template<typename T>
@@ -231,6 +243,12 @@ bool LinkedList<T>::unshift(T _t){
 	isCached = false;
 	
 	return true;
+}
+
+
+template<typename T>
+T& LinkedList<T>::operator[](int index) {
+	return getNode(index)->data;
 }
 
 template<typename T>

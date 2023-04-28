@@ -276,7 +276,10 @@ void Channel_set::process(char c){
 
 void Channel_set::exit(){
   channel_index = current_channel; // Set the range to the DDS
-  EEPROM.update(0,channel_index);  // Save the new index to memory
+  if (channel_index != EEPROM.read(0)){
+    EEPROM.write(0,channel_index);  // Save the new index to memory
+    EEPROM.commit();
+  }
   _parent->enter();
 };
 
@@ -343,7 +346,6 @@ void Static_out::checker(){
 void Static_out::update(){
   DDS0.setWave(current_freq,0,100);
   sprintf(place_holder,"Freq:%9liHz",current_freq);
-  // Serial.println(place_holder);
   _display->setCursor(0, 0);
   _display->printer(place_holder);
 }

@@ -12,7 +12,6 @@
 #include "encoder.h"
 
 
-
 SetListArduino SetListImage(SETLIST_TRIG);
 
 //Prototype functions
@@ -20,19 +19,27 @@ void setFreq0(AD9910 * dds, int * params);
 void setWave0(AD9910 * dds, int * params);
 void setAnalogMode0(AD9910 * dds, int * params);
 void followAnalog0(AD9910 dds, int analog_freq,int analog_amp);
+
 void setup() {
   delay(1000);
-  SPI.begin(); // SPI is begun before lcd intentionally since I used the MISO pin for the lcd control
+  EEPROM.begin(256);
+  SPI1.setCS(DDS0_CS);
+  SPI1.begin(); // SPI is begun before lcd intentionally since I used the MISO pin for the lcd control
   delay(50);
-  Serial5.begin(115200);  // Used for communicating with other microcontrollers
+  Serial1.setRX(SERIAL_RX);
+  Serial1.setTX(SERIAL_TX);
+  Serial1.begin(115200);  // Used for communicating with other microcontroller
   delay(50);
   pinMode(LCD_RST, OUTPUT);
-  digitalWriteFast(LCD_RST, HIGH);
-  // SPI1.begin();  // Used for communicating with lcd
+  digitalWrite(LCD_RST, HIGH);
+  SPI.setTX(LCD_MOSI);
+  SPI.setSCK(LCD_CLK);
   delay(100);  
   encoder.setup();
   lcd.begin();
   lcd.cursor();
+  
+  
 
 
   char name_holder[17];
@@ -80,11 +87,11 @@ int analog_freq;
 
 void loop() {
    SetListImage.readSerial(0); 
-  //  if (SetListImage.get_buffer()[0]=='\0'){
-  //   SetListImage.readSerial(5);
-  //  }else{
-  //   Serial5.print(SetListImage.get_buffer());
-  //  }
+   if (SetListImage.get_buffer()[0]=='\0'){
+    SetListImage.readSerial(1);
+   }else{
+    Serial1.print(SetListImage.get_buffer());
+   }
    char encoder_active = encoder.reader();
    if (encoder_active){
    root._active->process(encoder_active);

@@ -33,9 +33,9 @@
 SetListBase::SetListBase(){;}   
 void SetListBase::insertToSetList(int pos, GenericSetListCallback func, int * params){;}
 void SetListBase::executeSetList(int pos){;}
-int  SetListBase::getSetListFunc(int pos){;}
-int * SetListBase::getSetListParams(int pos){;}
-int SetListBase::getSetListLength(){;}
+int  SetListBase::getSetListFunc(int pos){return 0;}
+int * SetListBase::getSetListParams(int pos){return 0;}
+int SetListBase::getSetListLength(){return 0;}
 void SetListBase::clearSetList(){;}
 
 
@@ -89,48 +89,19 @@ int SetListArduino::getTriggerChannel(){
 // 		This is based heavily off of kroimon's SerialCommand library:
 //      https://github.com/kroimon/Arduino-SerialCommand
 void SetListArduino::readSerial(int i){  // MODIFIED
-	usb_serial_class nSerial = Serial;
+	SerialUSB nSerial = Serial;
 	// initialize error flag to false; will throw if encounters issue.
 	// MODIFIED {
 	if (i>0){
 	switch (i) {  // Making the Module compatible with hardware serials
 		case 1:
 		{
-			HardwareSerial nSerial = Serial1;
+			SerialUART nSerial = Serial1;
 		}	
 			break;
 		case 2:
 		{
-			HardwareSerial nSerial = Serial2;
-		}
-			break;
-		case 3:{
-			HardwareSerial nSerial = Serial3;
-		}
-			break;
-
-		case 4:{
-			HardwareSerial nSerial = Serial4;
-		}
-			break;
-
-		case 5:{
-			HardwareSerial nSerial = Serial5;
-		}
-			break;
-
-		case 6:{
-			HardwareSerial nSerial = Serial6;
-		}
-			break;
-
-		case 7:{
-			HardwareSerial nSerial = Serial7;
-		}
-			break;
-
-		case 8:{
-			HardwareSerial nSerial = Serial8;
+			SerialUART nSerial = Serial2;
 		}
 			break;
 	}
