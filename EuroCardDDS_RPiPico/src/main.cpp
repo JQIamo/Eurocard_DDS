@@ -73,7 +73,7 @@ void setup() {
   DDS0.setFreq(10000000);
   delay(10);
  
-  SetListImage.registerDevice(DDS0, channel_index);
+  SetListImage.registerDevice(DDS0, 0);
   
   SetListImage.registerCommand("f", 0, setFreq0);
   SetListImage.registerCommand("w", 0, setWave0);

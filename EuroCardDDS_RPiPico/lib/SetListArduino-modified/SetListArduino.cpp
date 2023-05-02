@@ -105,7 +105,10 @@ void SetListArduino::readSerial(int i){  // MODIFIED
 		}
 			break;
 	}
-	nSerial.begin(115200);
+	if (serial_port_recorder[i-1] == '0'){
+		nSerial.begin(115200);
+		serial_port_recorder[i-1] = '1';
+		}
 	}
 	// MODIFIED with all following Serial replaced by nSerial }
 	_errorFlag = false;

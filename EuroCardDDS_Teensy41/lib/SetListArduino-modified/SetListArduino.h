@@ -563,7 +563,9 @@ class SetListArduino {
         void clearSerialBuffer();
 		
 		char * get_buffer(); // MODIFIED
-        
+
+		char serial_port_recorder[9] = "00000000"; // MODIFIED
+
     private:
 
 		
