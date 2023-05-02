@@ -1,3 +1,6 @@
+// SetListArduino library modified for DDS with an analog control by Oliver/Juntian Tu at JQI in May. 2023
+// Inherited and editted from hhttps://github.com/JQIamo/SetListArduino-arduino written by Neal Pisenti at JQI
+
 /*
    SetListArduino.cpp - Arduino Integration for SetList computer control
    Created by Neal Pisenti, 2014
@@ -30,6 +33,7 @@
 ************************************************/
 
 // No need to do anything here, simply a container for SetListDevices.
+// By Oliver: Sometime 
 SetListBase::SetListBase(){;}   
 void SetListBase::insertToSetList(int pos, GenericSetListCallback func, int * params){;}
 void SetListBase::executeSetList(int pos){;}
@@ -134,18 +138,23 @@ void SetListArduino::readSerial(int i){  // MODIFIED
 		}
 			break;
 	}
-	nSerial.begin(115200);
+	if (serial_port_recorder[i-1] == '0'){
+		nSerial.begin(115200);
+		serial_port_recorder[i-1] = '1';
+		}
 	}
 	// MODIFIED with all following Serial replaced by nSerial }
 	_errorFlag = false;
-	bool ignore = true;
+	bool ignore = true; // MODIFIED: Since we are using different modules with single DDS on each module,
+						//	 we use channel index to distinguish the modules, and the command of other
+						// 	 channels should be ignored indicated by this ignore flag
 	bool run = false;
 	passer_tracker=0;
-	_char_passer[0] = '\0';
+	_char_passer[0] = '\0'; // Used for passing the received content to other modules
     while (nSerial.available() > 0){
         // read in next character from serial stream
-        char inChar = nSerial.read();
-		if(inChar == '^'){Serial.println('O');return;}
+        char inChar = nSerial.read(); // MODIFIED
+		if(inChar == '^'){Serial.println('O');return;} // MODIFIED: Added for connection check
 
 		_char_passer[passer_tracker] = inChar;  // MODIFIED: Recording the serial content for passing to other microcontroller later
 		_char_passer[passer_tracker+1] = '\0';  // MODIFIED
@@ -418,9 +427,9 @@ void SetListArduino::readSerial(int i){  // MODIFIED
     }   // end while(nSerial.available());
 }   // end readSerial();
 
-char * SetListArduino::get_buffer(){  // MODIFIED
-	return _char_passer;  // MODIFIED
-}  // MODIFIED
+char * SetListArduino::get_buffer(){  // MODIFIED: Used to retrieve the received content
+	return _char_passer;
+}
 
 void SetListArduino::clearSerialBuffer(){
 

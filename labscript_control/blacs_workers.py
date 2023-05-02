@@ -5,7 +5,7 @@
 # This file is part of labscript_devices                            #
 #                                                                   #
 #####################################################################
-from asyncio.log import loggerf
+# from asyncio.log import loggerf
 import logging
 from formatter import NullFormatter
 from os import times
@@ -37,7 +37,7 @@ class Eurocard_DDSWorker(Worker):
    
     def connection_check(self):
         try:
-            self.connection.write(b'#')
+            self.connection.write(b'^')
             checker = self.connection.read()
         except ConnectionRefusedError as msg:
             self.logger.debug(f"ConnectionRefusedError: server {self.server_address} is most likely down.")
@@ -59,8 +59,8 @@ class Eurocard_DDSWorker(Worker):
             table_data = None
             with h5py.File(h5file, 'r') as hdf5_file:
                 group = hdf5_file['/devices/'+device_name]
-                if 'TABLE_DATA' in group:
-                    table_data = group['TABLE_DATA'][:]
+                if 'TABLE_DATA%i'%self.channel in group:
+                    table_data = group['TABLE_DATA%i'%self.channel][:]
             if table_data is not None:
                 data = table_data
                 amp_list = data['amp'][:]

@@ -1,4 +1,4 @@
-// AD9910 used for DDS with an analog control by Juntian Tu at JQI in Jan. 2023
+// AD9910 used for DDS with an analog control by Oliver/Juntian Tu at JQI in Jan. 2023
 // Following is the comment in the original library this code is based on.
 
 /*

@@ -22,13 +22,12 @@ void setAnalogMode0(AD9910 * dds, int * params);
 void followAnalog0(AD9910 dds, int analog_freq,int analog_amp);
 void setup() {
   delay(1000);
-  SPI.begin(); // SPI is begun before lcd intentionally since I used the MISO pin for the lcd control
+  SPI.begin(); // SPI is begun before lcd intentionally since I used its MISO pin for the lcd control
   delay(50);
-  Serial5.begin(115200);  // Used for communicating with other microcontrollers
+  // Serial5.begin(115200);  // Used for communicating with other microcontrollers
   delay(50);
   pinMode(LCD_RST, OUTPUT);
   digitalWriteFast(LCD_RST, HIGH);
-  // SPI1.begin();  // Used for communicating with lcd
   delay(100);  
   encoder.setup();
   lcd.begin();
@@ -39,7 +38,7 @@ void setup() {
   channel_index = EEPROM.read(0);  // We use the channel index instead of the profile number to distinguish the DDSs
   sprintf(name_holder,"Channel:%1u",channel_index);
   // Setting up the menus
-  channel_set.current_channel = channel_index;
+  channel_set.current_channel = channel_index; // Assign the display name of channel_set menu
   strcpy(channel_set._display_name,name_holder);
 
   root.add(&analog_switch);
@@ -66,7 +65,8 @@ void setup() {
   DDS0.setFreq(10000000);
   delay(10);
  
-  SetListImage.registerDevice(DDS0, channel_index);
+  // SetListImage.registerDevice(DDS0, channel_index);
+  SetListImage.registerDevice(DDS0, 0);
   
   SetListImage.registerCommand("f", 0, setFreq0);
   SetListImage.registerCommand("w", 0, setWave0);

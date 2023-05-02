@@ -41,7 +41,7 @@ class Eurocard_Synth(IntermediateDevice):
     'TCPIP_address',  -- 
     'TCPIP_port' -- 
     """
-    description = 'FPGA'
+    description = 'Eurocard_DDS'
     allowed_children = [Eurocard_DDS]
 
     @set_passed_properties(
@@ -63,7 +63,7 @@ class Eurocard_Synth(IntermediateDevice):
         **kwargs
     ):
         IntermediateDevice.__init__(self, name, parent_device, **kwargs)
-        self.BLACS_connection = '%s,%i'%(com_port,rack_index)
+        self.BLACS_connection = 'serial:%s'%(com_port)
         self.rack_index = rack_index
         self.com_port = com_port
         self.channel = channel

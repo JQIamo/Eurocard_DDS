@@ -1,4 +1,4 @@
-// The menus on lcd used for DDS with an analog control by Juntian Tu at JQI in Jan. 2023
+// The menus on lcd used for DDS with an analog control by Oliver/Juntian Tu at JQI in May. 2023
 // Inherited and editted from https://github.com/JQIamo/hv-piezo-driver/tree/master/code written by Neal Pisenti at JQI
 
 #include "menus.h"
@@ -66,8 +66,8 @@ void Menu::process(char c){
     _current = _menu_counter % _menus.size();
      update();
      delay(10);
-  }else if (c == 'c'){
-    // c is the button press of the encoder
+  }else if (c == 'c' || c == 'h'){
+    // c is the button press of the encoder; h is the hold of the encoder
     Menu * next;
     next = _menus.get(_current);
     if (next->is_executive==false){
@@ -87,24 +87,24 @@ Root::Root(const char * display_name, LCD * output)
 A_switch::A_switch(const char * display_name, LCD * output)
   : Menu(display_name, output){};
 
-void A_switch::enter(){
+void A_switch::enter(){ // A_switch is just a switch rather than a real menu
   if (DDS0.isAnalogMode){
     strcpy(_display_name, "ANLG:OFF");
     DDS0.isAnalogMode = false;
-    DDS0.setFreq(10000000);
+    DDS0.setFreq(10000000); // TODO: May not be necessary
   }
   else{
     strcpy(_display_name, "ANLG:ON");
     DDS0.isAnalogMode = true;
   }
-  _parent->enter();
+  _parent->enter(); // go back to parent menu
 }
 
 
 Back::Back(const char * display_name, LCD * output)
   : Menu(display_name, output){};
 
-void Back::enter(){
+void Back::enter(){ // Back is not a real menu; it only takes you to its parent menu
   _parent->exit();
 }
 
@@ -129,7 +129,7 @@ void Freq_max::enter(){
 }
 
 void Freq_max::process(char c){
-  if (c == 'c'){
+  if (c == 'c' || c == 'h'){
     // Set the frequency limit and leave to the parent menu
     if(unit[0] == 'M'){
       newFreq = current_mfreq * 1e6;
@@ -138,7 +138,7 @@ void Freq_max::process(char c){
     }else{
       newFreq = current_mfreq;
     }
-    checker();
+    checker(); // Check if the range is appropriate
   }else{
     if (c == '+'){
     current_mfreq++;
@@ -153,7 +153,7 @@ void Freq_max::process(char c){
     }else if (c == 'M'){
     current_mfreq -= 100;
     }
-  carry();
+  carry(); // Carry the digit
   update();
   } 
 }
@@ -252,7 +252,7 @@ void Channel_set::update(){
 }
 
 void Channel_set::process(char c){
-  if (c == 'c'){
+  if (c == 'c' || c == 'h'){
     exit();
   }else{
     if (c == '+'){
@@ -269,7 +269,7 @@ void Channel_set::process(char c){
     current_channel --;
     }
   if (current_channel < 0){current_channel = 0;}
-    else if (current_channel > 7){current_channel = 9;}
+    else if (current_channel > 9){current_channel = 9;} // Assume we have no more than 10 modules
   update();
   } 
 }
@@ -298,7 +298,7 @@ void Static_out::enter(){
 void Static_out::cursor_update(){
   _display->setCursor(0, 1);
   _display->printer("");
-  _display->setCursor(13-cursor, 1);  // Move the cursor to correct position
+  _display->setCursor(13-cursor, 1);  // Move the cursor to the correct position
   _display->write(0b00010111);
 }
 
@@ -341,9 +341,8 @@ void Static_out::checker(){
 }
 
 void Static_out::update(){
-  DDS0.setWave(current_freq,0,100);
+  DDS0.setWave(current_freq,0,100); // Maybe setFreq?
   sprintf(place_holder,"Freq:%9liHz",current_freq);
-  // Serial.println(place_holder);
   _display->setCursor(0, 0);
   _display->printer(place_holder);
 }
@@ -357,4 +356,6 @@ Freq_min freq_min("MinFreq:100MHz", &lcd);  // Menu for the minimum frequency fo
 A_switch analog_switch("ANLG:OFF", &lcd);   // Menu for switching the analog mode
 Static_out static_out("Static_Mode",&lcd);  // Menu for switching and setting the static mode
 Back back("BACK", &lcd);                    // Menu for going back to root from analog_setting
-Channel_set channel_set("", &lcd);
+Channel_set channel_set("", &lcd);          // Menu for setting the channel index of the module; 
+                                            //   notice its display name is assigned in main.cpp
+                                            //   as it needs to read the memory

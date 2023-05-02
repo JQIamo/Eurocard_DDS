@@ -1,4 +1,4 @@
-// The encoder used for DDS with an analog control by Juntian Tu at JQI in Jan. 2023
+// The encoder used for DDS with an analog control by Oliver/Juntian Tu at JQI in May. 2023
 // Inherited and editted from https://lastminuteengineers.com/rotary-encoder-arduino-tutorial/
 
 #include "Arduino.h"
@@ -30,7 +30,7 @@ char Encoder::reader(){
 				if (currenttime - lastRotation < 250){
 					lastRotation = currenttime;
 					timescounter ++;
-					if (timescounter >= 3){
+					if (timescounter >= 3){ // Moving at same direction in high speed for 3 times brings to a higher mode
 						timescounter = 0;
 						if (lastreturned == '-'){
 							lastreturned = 'm';
@@ -86,18 +86,18 @@ char Encoder::reader(){
 
 	//If we detect LOW signal, button is pressed
 	if (btnState == LOW) {
-		//if 50ms have passed since last LOW pulse, it means that the
-		//button has been pressed, released and pressed again
+		// if 50ms have passed since last LOW pulse, it means that the
+		// button has been pressed, released and pressed again
 		delay(50);
 		unsigned long pressed_moment = millis();
 		while (digitalRead(ENC_SW) == LOW){}
-		if (pressed_moment - lastButtonPress > 100){
+		if (pressed_moment - lastButtonPress > 100){ // This condition added to prevent bouncing back of the button
 			unsigned long released_moment = millis();
 			if (released_moment - pressed_moment > 300) {
 				lastButtonPress = released_moment;
 				return 'h';
 			}
-			else { // This line added to prevent bouncing back of the button
+			else {
 				lastButtonPress = released_moment;
 				return 'c';
 			}
