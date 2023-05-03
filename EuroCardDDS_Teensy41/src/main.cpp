@@ -33,7 +33,6 @@ void setup() {
   lcd.begin();
   lcd.cursor();
 
-
   char name_holder[17];
   channel_index = EEPROM.read(0);  // We use the channel index instead of the profile number to distinguish the DDSs
   sprintf(name_holder,"Channel:%1u",channel_index);
@@ -50,7 +49,7 @@ void setup() {
   analog_setting.add(&back);
 
   delay(150);
-// For AD9910 dds...
+  // For AD9910 dds...
   pinMode(DDS0_RESET, OUTPUT);
   digitalWrite(DDS0_RESET, LOW);
   delay(100);
@@ -59,7 +58,7 @@ void setup() {
   delay(1);
   digitalWrite(DDS0_RESET, LOW);
 
-  DDS0.initialize(40000000,25); // TODO: Potentoally adding more DDS
+  DDS0.initialize(40000000,25);
   delay(100);
 
   DDS0.setFreq(10000000);
@@ -73,29 +72,56 @@ void setup() {
   SetListImage.registerCommand("a", 0, setAnalogMode0);
 
   root.enter();
-
 }
+
+
 int analog_amp;
 int analog_freq;
+int is_master = 0; // 0 for non-determined; 1 for master; 2 for slave
+char serial_buffer[SERIAL_BUFFER_SIZE];
+
 
 void loop() {
-   SetListImage.readSerial(0); 
-  //  if (SetListImage.get_buffer()[0]=='\0'){
-  //   SetListImage.readSerial(5);
-  //  }else{
-  //   Serial5.print(SetListImage.get_buffer());
-  //  }
    char encoder_active = encoder.reader();
    if (encoder_active){
    root._active->process(encoder_active);
    }
+
    if (DDS0.isAnalogMode){
     // uint32_t a = micros();
     analog_amp = analogRead(ANALOG_AMP);
     analog_freq = analogRead(ANALOG_FREQ);
     // Serial.println(micros()-a); // The 2 Analog reads takes aroung 36 us per loop
     followAnalog0(DDS0,analog_freq,analog_amp);
-   }
+
+   }else{
+    if (is_master != 2){
+      SetListImage.readSerial(0); // 0 is the USB Serial; 5 is the Serial pin
+      if (SetListImage.get_buffer()[0]=='\0'){
+        if(is_master == 0){
+          SetListImage.readSerial(5);
+          if (SetListImage.get_buffer()[0]!='\0'){
+            Serial5.addMemoryForRead(serial_buffer,SERIAL_BUFFER_SIZE);
+            is_master = 2;
+          }
+        }
+      }else{ 
+        delay(50); // Need some time for transferring from receiving to tranferring
+        // size_t k = strlen(SetListImage.get_buffer());
+        // char kk[20] = "";
+        // sprintf(kk, "k%zu",k);
+        // lcd.setCursor(0, 0);
+        // lcd.printer(kk);
+        if (is_master == 0){
+          is_master = 1;
+          Serial5.addMemoryForWrite(serial_buffer,SERIAL_BUFFER_SIZE);
+        }
+        Serial5.print(SetListImage.get_buffer());
+      }
+    }else{
+      SetListImage.readSerial(5);
+    }
+  }
 }
 
 void setAnalogMode0(AD9910 * dds, int * params){
