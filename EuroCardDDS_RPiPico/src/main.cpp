@@ -28,6 +28,7 @@ void setup() {
   delay(50);
   Serial1.setRX(SERIAL_RX);
   Serial1.setTX(SERIAL_TX);
+  Serial1.setFIFOSize(SERIAL_BUFFER_SIZE);
   Serial1.begin(115200);  // Used for communicating with other microcontroller
   delay(50);
   pinMode(LCD_RST, OUTPUT);
@@ -67,7 +68,7 @@ void setup() {
   delay(1);
   digitalWrite(DDS0_RESET, LOW);
 
-  DDS0.initialize(40000000,25); // TODO: Potentoally adding more DDS
+  DDS0.initialize(40000000,25);
   delay(100);
 
   DDS0.setFreq(10000000);
@@ -104,25 +105,24 @@ void loop() {
 
    }else{
     if (is_master != 2){
-      SetListImage.readSerial(0); // 0 is the USB Serial; 1 is the Serial pin
+      SetListImage.readSerial(); // 0 is the USB Serial; 1 is the Serial pin
       if (SetListImage.get_buffer()[0]=='\0'){
         if(is_master == 0){
-          SetListImage.readSerial(1);
+          SetListImage.readSerialH(5);
           if (SetListImage.get_buffer()[0]!='\0'){
-            Serial1.addMemoryForRead(serial_buffer,SERIAL_BUFFER_SIZE);
             is_master = 2;
           }
         }
       }else{ 
         delay(50); // Need some time for transferring from receiving to tranferring
-        Serial1.print(SetListImage.get_buffer());
         if (is_master == 0){
           is_master = 1;
-          Serial1.addMemoryForWrite(serial_buffer,SERIAL_BUFFER_SIZE);
         }
+        Serial1.print(SetListImage.get_buffer());
+        Serial1.flush();
       }
     }else{
-      SetListImage.readSerial(1);
+      SetListImage.readSerialH(1);
     }
   }
 }
@@ -139,6 +139,7 @@ void followAnalog0(AD9910 dds, int analog_freq,int analog_amp){
   double dfreq = ((double)analog_freq * (maxAnalogFreq - minAnalogFreq)) * 4 / 3069. +minAnalogFreq;
   uint32_t freq = (uint32_t)(dfreq);
   uint32_t amp = (uint32_t)analog_amp * 400 / 3069 ;
+  if (amp> 100){amp=100;}
   dds.setWave(freq,0,amp);
   // Serial.println(micros()-a); Takes around 5 us per loop
 }

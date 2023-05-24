@@ -29,28 +29,29 @@ class Eurocard_DDSWorker(Worker):
         global serial; import serial
         global h5py; import labscript_utils.h5_lock, h5py 
         self.smart_cache = np.array([-1])
-        if self.com_port == "":
-            self.connection = serial.Serial(Eurocard_COMlist[str(self.rack_index)], baudrate=115200, timeout=0.1)
-        else:
-            self.connection = serial.Serial(self.com_port, baudrate=115200, timeout=0.1)        
         self.connection_check()
    
     def connection_check(self):
+        self.connection = serial.Serial(self.com_port, baudrate=115200, timeout=0.1)
         try:
             self.connection.write(b'^')
             checker = self.connection.read()
         except ConnectionRefusedError as msg:
-            self.logger.debug(f"ConnectionRefusedError: server {self.server_address} is most likely down.")
+            self.logger.debug(f"ConnectionRefusedError: Communication failed. Check physical Serial connection")
             raise
         if checker != b'O':
             raise ConnectionError(f"Error in connection attempt: Expect 'O' but received {str(checker.decode())}.")
+        self.connection.close()
 
     def program_manual(self,front_panel_values):
+        self.connection = serial.Serial(self.com_port, baudrate=115200, timeout=0.1)
         data_string = '@ %i\r\n'%self.channel
         command = 'w %i 0 %i\r\n'%(front_panel_values['DDS_channel']['freq'],front_panel_values['DDS_channel']['amp'])
         data_string += command
         data_string += '$\r\n'
         self.connection.write(data_string.encode())
+        self.connection.close()
+        print(data_string)
         return front_panel_values
 
     def transition_to_buffered(self,device_name,h5file,initial_values,fresh):
@@ -69,10 +70,12 @@ class Eurocard_DDSWorker(Worker):
                 for i in range(len(amp_list)):
                     data_string += 'w %i 0 %i\r\n'%(freq_list[i],amp_list[i])
                 data_string += '$\r\n'
+                self.connection = serial.Serial(self.com_port, baudrate=115200, timeout=0.1)
                 self.connection.write(data_string.encode())
                 final_values = {'Eurocard_DDS':{}}
                 final_values['Eurocard_DDS']['freq'] = freq_list[-1]
                 final_values['Eurocard_DDS']['amp'] = amp_list[-1]
+                self.connection.close()
         else:
             data_string = ''
             with h5py.File(h5file, 'r') as hdf5_file:
@@ -94,8 +97,11 @@ class Eurocard_DDSWorker(Worker):
                                         final_values['Eurocard_DDS']['amp'] = amp_list[-1]
                     break            
             if data_string != '':
+                self.connection = serial.Serial(self.com_port, baudrate=115200, timeout=0.1)
                 data_string += '$\r\n'
                 self.connection.write(data_string.encode())
+                print('Data sent\n')
+                self.connection.close()
         return final_values    
 
     
@@ -109,6 +115,6 @@ class Eurocard_DDSWorker(Worker):
         return True
 
     def shutdown(self):
-        self.connection.close()
+        pass
 
      

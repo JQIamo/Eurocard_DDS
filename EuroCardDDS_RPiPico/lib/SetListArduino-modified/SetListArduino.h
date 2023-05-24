@@ -561,7 +561,11 @@ class SetListArduino {
         	of your Arduino sketch. For more information, look at the 
         	[README](md__r_e_a_d_m_e.html).
         */
-        void readSerial(int i);  // MODIFIED
+        void readSerial(); 
+
+		void readSerialH(int i); // MODIFIED
+
+		SerialUART *nSerial;
 
 
         

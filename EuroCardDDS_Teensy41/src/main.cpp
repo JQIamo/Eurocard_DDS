@@ -71,6 +71,10 @@ void setup() {
   SetListImage.registerCommand("w", 0, setWave0);
   SetListImage.registerCommand("a", 0, setAnalogMode0);
 
+  Serial5.setTX(20);
+  Serial5.setRX(21);
+  Serial5.begin(115200);
+
   root.enter();
 }
 
@@ -96,30 +100,26 @@ void loop() {
 
    }else{
     if (is_master != 2){
-      SetListImage.readSerial(0); // 0 is the USB Serial; 5 is the Serial pin
+      SetListImage.readSerial(); // 0 is the USB Serial; 5 is the Serial pin
       if (SetListImage.get_buffer()[0]=='\0'){
         if(is_master == 0){
-          SetListImage.readSerial(5);
+          Serial5.addMemoryForRead(serial_buffer,SERIAL_BUFFER_SIZE);
+          SetListImage.readSerialH(5);
           if (SetListImage.get_buffer()[0]!='\0'){
-            Serial5.addMemoryForRead(serial_buffer,SERIAL_BUFFER_SIZE);
             is_master = 2;
           }
         }
       }else{ 
         delay(50); // Need some time for transferring from receiving to tranferring
-        // size_t k = strlen(SetListImage.get_buffer());
-        // char kk[20] = "";
-        // sprintf(kk, "k%zu",k);
-        // lcd.setCursor(0, 0);
-        // lcd.printer(kk);
         if (is_master == 0){
           is_master = 1;
           Serial5.addMemoryForWrite(serial_buffer,SERIAL_BUFFER_SIZE);
         }
         Serial5.print(SetListImage.get_buffer());
+        Serial5.flush();
       }
     }else{
-      SetListImage.readSerial(5);
+      SetListImage.readSerialH(5);
     }
   }
 }

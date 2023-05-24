@@ -67,6 +67,7 @@ class Eurocard_SynthTab(DeviceTab):
                             {'com_port':self.com_port,
                             'rack_index': self.rack_index,
                             'channel':self.channel})
+
         
         self.primary_worker = "main_worker"
 

@@ -92,58 +92,9 @@ int SetListArduino::getTriggerChannel(){
 //      add the appropriate callbacks to the appropriate device's _setlist.
 // 		This is based heavily off of kroimon's SerialCommand library:
 //      https://github.com/kroimon/Arduino-SerialCommand
-void SetListArduino::readSerial(int i){  // MODIFIED
-	usb_serial_class nSerial = Serial;
+void SetListArduino::readSerial(){  // MODIFIED
 	// initialize error flag to false; will throw if encounters issue.
 	// MODIFIED {
-	if (i>0){
-	switch (i) {  // Making the Module compatible with hardware serials
-		case 1:
-		{
-			HardwareSerial nSerial = Serial1;
-		}	
-			break;
-		case 2:
-		{
-			HardwareSerial nSerial = Serial2;
-		}
-			break;
-		case 3:{
-			HardwareSerial nSerial = Serial3;
-		}
-			break;
-
-		case 4:{
-			HardwareSerial nSerial = Serial4;
-		}
-			break;
-
-		case 5:{
-			HardwareSerial nSerial = Serial5;
-		}
-			break;
-
-		case 6:{
-			HardwareSerial nSerial = Serial6;
-		}
-			break;
-
-		case 7:{
-			HardwareSerial nSerial = Serial7;
-		}
-			break;
-
-		case 8:{
-			HardwareSerial nSerial = Serial8;
-		}
-			break;
-	}
-	if (serial_port_recorder[i-1] == '0'){
-		nSerial.begin(115200);
-		serial_port_recorder[i-1] = '1';
-		}
-	}
-	// MODIFIED with all following Serial replaced by nSerial }
 	_errorFlag = false;
 	bool ignore = true; // MODIFIED: Since we are using different modules with single DDS on each module,
 						//	 we use channel index to distinguish the modules, and the command of other
@@ -151,11 +102,11 @@ void SetListArduino::readSerial(int i){  // MODIFIED
 	bool run = false;
 	passer_tracker=0;
 	_char_passer[0] = '\0'; // Used for passing the received content to other modules
-    while (nSerial.available() > 0){
+    while (Serial.available() > 0){
         // read in next character from serial stream
-        char inChar = nSerial.read(); // MODIFIED
+        char inChar = Serial.read(); // MODIFIED
+		// Serial.println(inChar);
 		if(inChar == '^'){Serial.println('O');return;} // MODIFIED: Added for connection check
-
 		_char_passer[passer_tracker] = inChar;  // MODIFIED: Recording the serial content for passing to other microcontroller later
 		_char_passer[passer_tracker+1] = '\0';  // MODIFIED
 		passer_tracker++;  // MODIFIED
@@ -424,7 +375,325 @@ void SetListArduino::readSerial(int i){  // MODIFIED
                 _buffer[_bufPos] = '\0';     // make sure null-terminated
             }
         }
-    }   // end while(nSerial.available());
+    }   // end while(Serial.available());
+}   // end readSerial();
+
+void SetListArduino::readSerialH(int i){  // MODIFIED
+	// initialize error flag to false; will throw if encounters issue.
+	// MODIFIED {
+	switch (i){
+		case 1:
+			nSerial = &Serial1;
+			break;
+		case 2:
+			nSerial = &Serial2;
+			break;
+		case 3:
+			nSerial = &Serial3;
+			break;
+		case 4:
+			nSerial = &Serial4;
+			break;
+		case 5:
+			nSerial = &Serial5;
+			break;
+		case 6:
+			nSerial = &Serial6;
+			break;
+		case 7:
+			nSerial = &Serial7;
+			break;
+		case 8:
+			nSerial = &Serial8;
+			break;
+	}
+	// if (serial_port_recorder[i-1] == '0'){
+	// 	nSerial->begin(115200);
+	// 	serial_port_recorder[i-1] = '1';
+	// 	}
+	// MODIFIED with all following Serial replaced by nSerial }
+	_errorFlag = false;
+	bool ignore = true; // MODIFIED: Since we are using different modules with single DDS on each module,
+						//	 we use channel index to distinguish the modules, and the command of other
+						// 	 channels should be ignored indicated by this ignore flag
+	bool run = false;
+	passer_tracker=0;
+	_char_passer[0] = '\0'; // Used for passing the received content to other modules
+	// Serial.println(nSerial);
+    while (nSerial->available() > 0){
+		// Serial.println(nSerial->available());
+        // read in next character from serial stream
+        char inChar = nSerial->read(); // MODIFIED
+		// Serial.println(inChar);
+		_char_passer[passer_tracker] = inChar;  // MODIFIED: Recording the serial content for passing to other microcontroller later
+		_char_passer[passer_tracker+1] = '\0';  // MODIFIED
+		passer_tracker++;  // MODIFIED
+        
+        if (inChar == _serialTerm) {
+            // reached serial line terminator, so tokenize string
+            char * command = strtok_r(_buffer, _delim, & _last);
+            char * param;
+            
+            // check to see if command was a "special" command
+            bool specialCmd = false;
+            switch (*command) {
+            	case _activateDeviceCmd:
+            		specialCmd = true;
+            		_line = 0;
+                	_setlistLength = 0; // reset counter for setlist...
+                                    	// all of the logic here assumes you're
+                                    	// sending setlists of equal length for 
+                                    	// all devices!!
+            		
+            		param = strtok_r(NULL, _delim, & _last);
+            		
+            		#ifdef SETLIST_DEBUG
+            			Serial.print("Activating device: ");
+            			Serial.println(param);
+            		#endif
+            		
+            		// Parse device number, error check, and activate device
+            		if (param != NULL) {
+
+						if (atoi(param) == channel_index){
+
+						ignore = false;
+            			
+                    	int channel = 0;
+                    	              
+						if(channel >= 0 && channel < _deviceCount){
+							_activeDevice = channel;
+							_deviceList[_activeDevice]->clearSetList();
+						} else {
+							#ifdef SETLIST_ERROR_CHECK
+								Serial.println("ArduinoError: Invalid Channel");
+							#endif
+						}
+						} else {
+							ignore = true;
+						}
+					} else {
+						#ifdef SETLIST_ERROR_CHECK
+							Serial.println("ArduinoError: Invalid Param");
+						#endif                  
+					}      
+					
+            		break;
+            		
+            	case _initRunCmd:
+            		specialCmd = true;
+					run = true;
+            		_line = 0;
+                	            		
+            		
+            		// check that _setlist table is rectangular...
+            		for (int d = 0; d < _deviceCount; d++){
+            			if(_deviceList[d]->getSetListLength() != _setlistLength)
+            			{	
+            				_errorFlag = true;
+            				break;
+            			}
+            		}
+            		
+            				
+            		if (!_errorFlag){
+						#ifdef SETLIST_DEBUG
+							Serial.println("Init SetList run...");
+						#endif
+						
+						// reset ISR
+						detachInterrupt(_triggerChannel);
+						attachInterrupt(_triggerChannel,
+							SetListISR::firstTriggerInterrupt, FALLING);
+						
+						// initialize by executing first setlist line
+						
+						triggerUpdate();
+							
+					}
+            		break;
+            		
+            	case _echoSetListCmd:
+					if(! ignore){
+            		specialCmd = true;
+            		
+            		#ifdef SETLIST_DEBUG
+            			Serial.println("Here is the programmed setlist:");
+            		#endif
+            		
+            		for (int i = 0; i < _deviceCount; i++){
+            			Serial.print("Device #");
+            			Serial.println(i);
+            			Serial.print("Setlist lines: ");
+            			int setlistLength = _deviceList[i]->getSetListLength();
+            			Serial.println(setlistLength);
+            			for (int j = 0; j < setlistLength; j++){
+            				Serial.print("ln ");
+            				Serial.print(j);
+            				Serial.print("; Callback Ptr ");
+            				Serial.print(_deviceList[i]->getSetListFunc(j));
+            				Serial.print("; Params ");
+            				int * lineParams = 
+            					_deviceList[i]->getSetListParams(j);
+            				for(int k = 0; k < MAX_PARAM_NUM; k++){
+            					Serial.print(lineParams[k]);
+            					Serial.print(" ");
+            				}
+            				Serial.println(";");
+            			}
+            			Serial.println("----------");
+            			if(setlistLength != _setlistLength){
+            				Serial.print("There is a mismatch in setlist lines. Device thinks there are ");
+            				Serial.print(setlistLength);
+            				Serial.print(" lines, while SetListImage thinks there are ");
+            				Serial.print(_setlistLength);
+            				Serial.println(" lines. Get yo' life together!");
+            			}
+            		}
+					}
+            		break;
+            	
+            	case _executeSingleLine:
+					if (!ignore){
+            		specialCmd = true;
+            		int ch = atoi(strtok_r(NULL, _delim, & _last));
+            		int ln = atoi(strtok_r(NULL, _delim, & _last));
+            		#ifdef SETLIST_DEBUG
+            			Serial.println("Executing single line...");
+            			Serial.print("Channel: ");
+            			Serial.print(ch);
+            			Serial.print(" Line: ");
+            			Serial.println(ln);
+            		#endif
+            		if ( ch >= 0 && ch < _deviceCount){
+            			_deviceList[ch]->executeSetList(ln);
+            		} else {
+            			#ifdef SETLIST_DEBUG
+            				Serial.print("Channel out of range. Only ");
+            				Serial.print(_deviceCount);
+            				Serial.println(" devices are registered.");
+            			#endif
+            		}}
+            		break;	
+            }
+			
+			
+            
+            // If command isn't one of the "special" commands,
+        	// try to match it with list of registered commands.
+            if (command != NULL && !specialCmd) {
+                
+                boolean matched = false;
+                for (int i = 0; i < _commandCount; i++) {
+                    #ifdef SETLIST_DEBUG
+                    	Serial.print("Trying to match command: ");
+                    	Serial.println(_commandList[i].command);
+                    #endif
+                    
+                    // check to see if command is in commandList,
+                    // and channel matches with currently activated device.
+                    if ((strncmp(command, _commandList[i].command, 
+                            SERIALCOMMAND_MAXCOMMANDLENGTH) == 0) &&
+                            (_commandList[i].channel == _activeDevice)){
+                        
+                        #ifdef SETLIST_DEBUG
+                        	Serial.print("Matched command: ");
+                        	Serial.print(_commandList[i].command);
+                        	Serial.print(", Channel #: ");
+                        	nerial.println(_activeDevice);
+							Serial.println("These are the params: ");
+                        #endif
+                        
+                        int paramList[MAX_PARAM_NUM];
+
+                        for (int p = 0; p < MAX_PARAM_NUM; p++){
+                        	char * paramChar = strtok_r(NULL, _delim, & _last);
+                        	if (paramChar != NULL){
+								paramList[p] = atoi(paramChar);
+                            	#ifdef SETLIST_DEBUG
+									Serial.println(paramChar);
+									Serial.println(atoi(paramChar));
+								#endif
+                            } else {
+                            	#ifdef SETLIST_DEBUG
+									Serial.print("param was null: ");
+									Serial.println(p);
+                            	#endif
+								paramList[p] = 0;
+                            }
+                        }
+                        
+                        #ifdef SETLIST_DEBUG
+                        	Serial.print("Parameters passed: ");
+                        	for(int p = 0; p < MAX_PARAM_NUM; p++){
+                        		Serial.print(paramList[p]);
+                        		Serial.print(", ");
+                        	}
+                        	Serial.println("");
+                        	Serial.print("Inserting into setlist line #: ");
+                        	Serial.println(_line);
+                        #endif
+                        
+                        _deviceList[_activeDevice]->insertToSetList(_line++,
+                					_commandList[i].function, paramList);
+               			
+               			_setlistLength++;	// increment setlist length counter
+                        
+                        matched = true;
+
+                        
+                        break;
+                    }
+                }   // end loop over _commandList
+                
+                // If command not matched, tell labview if ERR_CHECK defined.
+                if (!matched) {
+                    #ifdef SETLIST_ERROR_CHECK
+                    	_errorFlag = true;
+                    #endif
+                    #ifdef SETLIST_DEBUG
+                    	Serial.print("That was an invalid command. You sent ");
+                    	Serial.print("(");
+                    	Serial.print(_activeDevice);
+                    	Serial.print(",");
+                    	Serial.print(command);
+                    	Serial.println("), but valid commands (channel, cmd) are:");
+                    	for (int i = 0; i < _commandCount; i++){
+                    		Serial.print("(");
+                    		Serial.print(_commandList[i].channel);
+                    		Serial.print(",");
+                    		Serial.print(_commandList[i].command);
+                    		Serial.print(")");
+                    	}
+                    	Serial.println("");
+                    #endif
+                    
+                }
+            }
+            
+            clearSerialBuffer();    // clear out serial buffer
+                                    // to prepare for next line.
+			if (_errorFlag){
+				Serial.println("B");
+			} else {
+				if (run) {
+				Serial.println("GR");	// OK status to labview
+				} else {
+				Serial.println("G");
+				}
+			}
+        } 
+        // If inChar isn't the serial line terminator, 
+        // just add it to buffer and repeat.
+        // if _bufPos > serial command buffer length, currently loose chars.
+        // We will want to handle this properly at some point.
+        else if(isprint(inChar)) {  // only add printable chars into buffer
+            if (_bufPos < SERIALCOMMAND_BUFFER) {
+                _buffer[_bufPos++] = inChar; // add char to buffer
+                _buffer[_bufPos] = '\0';     // make sure null-terminated
+            }
+        }
+    }   // end while(nSerial->available());
 }   // end readSerial();
 
 char * SetListArduino::get_buffer(){  // MODIFIED: Used to retrieve the received content

@@ -58,7 +58,7 @@ class Eurocard_Synth(IntermediateDevice):
         name,
         parent_device,
         channel,
-        com_port="",
+        com_port,
         rack_index=None,
         **kwargs
     ):
@@ -67,21 +67,12 @@ class Eurocard_Synth(IntermediateDevice):
         self.rack_index = rack_index
         self.com_port = com_port
         self.channel = channel
-        if self.rack_index == None and self.com_port=="":
-            raise TypeError("Rack index and Com port cannot be both Null: For single module, only assign the com_port of the connection; for multiple-module-on-rack, assign the rack_index and do/don't assign a com_port if the module is a Master/Slave.")
 
     def add_device(self, device):
         Device.add_device(self, device)
         device.frequency.default_value = 1e8
         device.amplitude.default_value = 100
-        if self.rack_index != None:
-            if self.com_port != "":
-                global Eurocard_COMlist
-                try:
-                    Eurocard_COMlist[str(self.rack_index)]=self.com_port
-                except:
-                    Eurocard_COMlist={}
-                    Eurocard_COMlist[str(self.rack_index)]=self.com_port
+
 
             
     def get_default_unit_conversion_classes(self, device):
@@ -130,7 +121,7 @@ class Eurocard_Synth(IntermediateDevice):
             #     int(output.connection)
             #     DDSs[output.connection] = output
             # except:
-            #     raise TypeError("%s must have an integer string connection index" % output.name)
+            #     raise TypeError("%s must have an integer string connection index" % output.name)  
         dds = self.child_devices[0]
 
         dtypes = {'names':['freq','amp'],'formats':[np.uint32,np.uint8]}
@@ -146,11 +137,11 @@ class Eurocard_Synth(IntermediateDevice):
         out_table['amp'].fill(1) # set them to 1
         out_table['amp'][:] = dds.amplitude.raw_output
         # print("time when started creating h5file:"+str(time.time())+"\n")
-        if self.rack_index == None:
-            grp = self.init_device_group(hdf5_file)
-        else:
-            grp = hdf5_file['/devices/Eurocard_DDS%i'%self.rack_index]
-            if not grp:
+        grp = self.init_device_group(hdf5_file)
+        if self.rack_index != None:
+            try:
+                grp = hdf5_file['/devices/Eurocard_DDS%i'%self.rack_index]
+            except:
                 grp = hdf5_file['/devices'].create_group('Eurocard_DDS%i'%self.rack_index)
         grp.create_dataset('TABLE_DATA%i'%self.channel,compression=config.compression,data=out_table) 
         print("time when ended creating h5file:"+str(time.time())+"\n")
