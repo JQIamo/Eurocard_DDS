@@ -111,6 +111,7 @@ void Back::enter(){
 Freq_max::Freq_max(const char * display_name, LCD * output)
   : Menu(display_name, output){
     strcpy(unit,"MHz");
+    current_mfreq=200;
   };
 
 void Freq_max::update(){
@@ -213,6 +214,7 @@ void Freq_max::exit(){
 Freq_min::Freq_min(const char * display_name, LCD * output)
   : Freq_max(display_name, output){
     strcpy(unit,"MHz");
+    current_mfreq=100;
 };
 
 void Freq_min::realtime(){

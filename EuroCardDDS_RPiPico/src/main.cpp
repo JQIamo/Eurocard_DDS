@@ -80,29 +80,51 @@ void setup() {
   SetListImage.registerCommand("a", 0, setAnalogMode0);
 
   root.enter();
-
 }
+
+
 int analog_amp;
 int analog_freq;
+int is_master = 0; // 0 for non-determined; 1 for master; 2 for slave
+char serial_buffer[SERIAL_BUFFER_SIZE];
+
 
 void loop() {
-   SetListImage.readSerial(0); 
-   if (SetListImage.get_buffer()[0]=='\0'){
-    SetListImage.readSerial(1);
-   }else{
-    Serial1.print(SetListImage.get_buffer());
-   }
    char encoder_active = encoder.reader();
    if (encoder_active){
    root._active->process(encoder_active);
    }
+
    if (DDS0.isAnalogMode){
     // uint32_t a = micros();
     analog_amp = analogRead(ANALOG_AMP);
     analog_freq = analogRead(ANALOG_FREQ);
     // Serial.println(micros()-a); // The 2 Analog reads takes aroung 36 us per loop
     followAnalog0(DDS0,analog_freq,analog_amp);
-   }
+
+   }else{
+    if (is_master != 2){
+      SetListImage.readSerial(0); // 0 is the USB Serial; 1 is the Serial pin
+      if (SetListImage.get_buffer()[0]=='\0'){
+        if(is_master == 0){
+          SetListImage.readSerial(1);
+          if (SetListImage.get_buffer()[0]!='\0'){
+            Serial1.addMemoryForRead(serial_buffer,SERIAL_BUFFER_SIZE);
+            is_master = 2;
+          }
+        }
+      }else{ 
+        delay(50); // Need some time for transferring from receiving to tranferring
+        Serial1.print(SetListImage.get_buffer());
+        if (is_master == 0){
+          is_master = 1;
+          Serial1.addMemoryForWrite(serial_buffer,SERIAL_BUFFER_SIZE);
+        }
+      }
+    }else{
+      SetListImage.readSerial(1);
+    }
+  }
 }
 
 void setAnalogMode0(AD9910 * dds, int * params){

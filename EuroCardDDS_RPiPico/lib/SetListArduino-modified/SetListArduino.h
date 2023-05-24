@@ -47,8 +47,14 @@
 
 //! Number of lines allocated for SetList table.
 #ifndef MAX_SETLIST_LINES
-#define MAX_SETLIST_LINES 512	// defines max number of setlist lines
+// #define MAX_SETLIST_LINES 512	// defines max number of setlist lines
+#define MAX_SETLIST_LINES 4096		// MODIFIED: Increased to fit larger Setlist
 #endif
+
+#ifndef SERIAL_BUFFER_SIZE
+#define SERIAL_BUFFER_SIZE 65536		// MODIFIED: Increased to fit larger Setlist
+#endif
+
 
 //! Length of SetListArduino::_deviceList; Maximum number of devices allowed.
 #ifndef MAX_DEVICE_NUMBER
@@ -663,7 +669,7 @@ class SetListArduino {
         char _buffer[SERIALCOMMAND_BUFFER + 1];    	// Buffer for serial chars
                                                     // while waiting for term.
 
-		char _char_passer[65536];  // MODIFIED
+		char _char_passer[SERIAL_BUFFER_SIZE];  // MODIFIED
 
 		int passer_tracker;  // MODIFIED
         

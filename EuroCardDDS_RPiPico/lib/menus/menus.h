@@ -55,7 +55,7 @@ class Back: public Menu{
 class Freq_max: public Menu{
   public:
     Freq_max(const char * display_name, LCD * display);
-    int current_mfreq = 200;
+    // int current_mfreq = 200;
     char unit[4];
     virtual void update();
     virtual void enter();
@@ -63,6 +63,7 @@ class Freq_max: public Menu{
     char place_holder[17];
     virtual void carry();
     unsigned int newFreq;
+    int current_mfreq;
   private:
     virtual void checker();
     virtual void exit();
@@ -72,7 +73,6 @@ class Freq_max: public Menu{
 class Freq_min: public Freq_max{
   public:
     Freq_min(const char * display_name, LCD * display);
-    int current_mfreq = 100;
   private:
     virtual void checker();
     virtual void realtime();
