@@ -46,7 +46,12 @@ class Eurocard_DDSWorker(Worker):
     def program_manual(self,front_panel_values):
         self.connection = serial.Serial(self.com_port, baudrate=115200, timeout=0.1)
         data_string = '@ %i\r\n'%self.channel
-        command = 'w %i 0 %i\r\n'%(front_panel_values['DDS_channel']['freq'],front_panel_values['DDS_channel']['amp'])
+        f =front_panel_values['DDS_channel']['freq']
+        if f>3e8:
+            f=3e8
+        elif f<2e8:
+            f=2e8
+        command = 'w %i 0 %i\r\n'%(f,front_panel_values['DDS_channel']['amp'])
         data_string += command
         data_string += '$\r\n'
         self.connection.write(data_string.encode())
@@ -66,6 +71,8 @@ class Eurocard_DDSWorker(Worker):
                 data = table_data
                 amp_list = data['amp'][:]
                 freq_list = data['freq'][:]
+                amp_list = np.concatenate(([amp_list[0],amp_list[0]],amp_list)) # PB trigger synch
+                freq_list = np.concatenate(([freq_list[0],freq_list[0]],freq_list))
                 data_string = '@ %i\r\n'%self.channel
                 for i in range(len(amp_list)):
                     data_string += 'w %i 0 %i\r\n'%(freq_list[i],amp_list[i])

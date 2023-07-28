@@ -25,8 +25,8 @@ from qtutils.qt import QtWidgets
 class Eurocard_SynthTab(DeviceTab):
     def initialise_GUI(self):        
         self.units =    {'freq':'Hz',      'amp':'%'}
-        self.min =      {'freq':1,      'amp':0}
-        self.max =      {'freq':5e8,      'amp':100} 
+        self.min =      {'freq':2e8,      'amp':0}
+        self.max =      {'freq':3e8,      'amp':100} 
         self.step =     {'freq':10000,      'amp':1}
         self.decimals = {'freq':0,         'amp':0} 
         

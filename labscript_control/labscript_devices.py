@@ -70,7 +70,7 @@ class Eurocard_Synth(IntermediateDevice):
 
     def add_device(self, device):
         Device.add_device(self, device)
-        device.frequency.default_value = 1e8
+        device.frequency.default_value = 25e7
         device.amplitude.default_value = 100
 
 
@@ -136,6 +136,11 @@ class Eurocard_Synth(IntermediateDevice):
         out_table['freq'][:] = dds.frequency.raw_output
         out_table['amp'].fill(1) # set them to 1
         out_table['amp'][:] = dds.amplitude.raw_output
+        for i in range(len(out_table['freq'])):
+            if out_table['freq'][i] < 2e8:
+                out_table['freq'][i] = 2e8
+            elif out_table['freq'][i] >3e8:
+                out_table['freq'][i] =3e8
         # print("time when started creating h5file:"+str(time.time())+"\n")
         grp = self.init_device_group(hdf5_file)
         if self.rack_index != None:
