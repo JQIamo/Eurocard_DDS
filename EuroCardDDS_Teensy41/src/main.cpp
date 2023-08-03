@@ -12,7 +12,11 @@
 #include "encoder.h"
 
 
-
+int if_serial = 0;
+int analog_amp;
+int analog_freq;
+int is_master = 0; // 0 for non-determined; 1 for master; 2 for slave
+char serial_buffer[SERIAL_BUFFER_SIZE];
 SetListArduino SetListImage(SETLIST_TRIG);
 
 //Prototype functions
@@ -61,28 +65,27 @@ void setup() {
   DDS0.initialize(40000000,25);
   delay(100);
 
-  DDS0.setFreq(10000000);
+  DDS0.setFreq(250000000);
+  // DDS0.setWave(137827000,0,10);
   delay(10);
- 
+  
   // SetListImage.registerDevice(DDS0, channel_index);
   SetListImage.registerDevice(DDS0, 0);
   
   SetListImage.registerCommand("f", 0, setFreq0);
   SetListImage.registerCommand("w", 0, setWave0);
   SetListImage.registerCommand("a", 0, setAnalogMode0);
-
+  if (if_serial){
   Serial5.setTX(20);
   Serial5.setRX(21);
   Serial5.begin(115200);
-
+  }
+  if(!if_serial){is_master = 2;}
   root.enter();
 }
 
 
-int analog_amp;
-int analog_freq;
-int is_master = 0; // 0 for non-determined; 1 for master; 2 for slave
-char serial_buffer[SERIAL_BUFFER_SIZE];
+
 
 
 void loop() {
@@ -99,7 +102,7 @@ void loop() {
     followAnalog0(DDS0,analog_freq,analog_amp);
 
    }else{
-    if (is_master != 2){
+    if (is_master != 2 or !if_serial){
       SetListImage.readSerial(); // 0 is the USB Serial; 5 is the Serial pin
       if (SetListImage.get_buffer()[0]=='\0'){
         if(is_master == 0){
@@ -115,10 +118,12 @@ void loop() {
           is_master = 1;
           Serial5.addMemoryForWrite(serial_buffer,SERIAL_BUFFER_SIZE);
         }
+        if (if_serial){
         Serial5.print(SetListImage.get_buffer());
         Serial5.flush();
+        }
       }
-    }else{
+    }else if (if_serial){
       SetListImage.readSerialH(5);
     }
   }

@@ -111,7 +111,7 @@ void Back::enter(){ // Back is not a real menu; it only takes you to its parent 
 Freq_max::Freq_max(const char * display_name, LCD * output)
   : Menu(display_name, output){
     strcpy(unit,"MHz");
-    current_mfreq=200;
+    current_mfreq=300;
   };
 
 void Freq_max::update(){
@@ -214,7 +214,7 @@ void Freq_max::exit(){
 Freq_min::Freq_min(const char * display_name, LCD * output)
   : Freq_max(display_name, output){
     strcpy(unit,"MHz");
-    current_mfreq=100;
+    current_mfreq=200;
 };
 
 void Freq_min::realtime(){
@@ -335,15 +335,21 @@ void Static_out::process(char c){
 }
 
 void Static_out::checker(){
-  if (current_freq<1000){
-    current_freq = 1000;
-  }else if (current_freq>4e8){
-    current_freq = 400000000;
+  // if (current_freq<1000){
+  //   current_freq = 1e3;
+  // }else if (current_freq>5e8){
+  //   current_freq = 5e8;
+  // }
+  if (current_freq<2e8){
+    current_freq = 2e8;
+  }else if (current_freq>3e8){
+    current_freq = 3e8;
   }
 }
 
 void Static_out::update(){
-  DDS0.setWave(current_freq,0,100); // Maybe setFreq?
+  // DDS0.setWave(current_freq,0,100); // Maybe setFreq? - Yes
+  DDS0.setFreq(current_freq);
   sprintf(place_holder,"Freq:%9liHz",current_freq);
   _display->setCursor(0, 0);
   _display->printer(place_holder);
