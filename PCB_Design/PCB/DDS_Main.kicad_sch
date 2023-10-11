@@ -3392,7 +3392,7 @@
     (property "Reference" "L2" (at 183.515 132.08 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "1000k Ferrite" (at 183.515 134.62 0)
+    (property "Value" "1k Ferrite" (at 183.515 134.62 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 184.15 138.43 0)

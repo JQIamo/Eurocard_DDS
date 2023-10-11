@@ -1922,7 +1922,7 @@
     (property "Reference" "L2" (at 177.8 44.45 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "1000k Ferrite" (at 177.8 46.99 0)
+    (property "Value" "1k Ferrite" (at 177.8 46.99 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "carrier_board_fp:0603FP" (at 178.435 50.8 0)
