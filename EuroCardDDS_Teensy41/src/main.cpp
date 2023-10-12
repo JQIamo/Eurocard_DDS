@@ -65,8 +65,9 @@ void setup() {
   DDS0.initialize(40000000,25);
   delay(100);
 
-  DDS0.setFreq(250000000);
-  // DDS0.setWave(137827000,0,10);
+  // DDS0.setFreq(250000000);
+  // DDS0.setWave(250000000,0,100);
+  DDS0.setWave(137000000,0,10);
   delay(10);
   
   // SetListImage.registerDevice(DDS0, channel_index);

@@ -335,16 +335,16 @@ void Static_out::process(char c){
 }
 
 void Static_out::checker(){
-  // if (current_freq<1000){
-  //   current_freq = 1e3;
-  // }else if (current_freq>5e8){
-  //   current_freq = 5e8;
-  // }
-  if (current_freq<2e8){
-    current_freq = 2e8;
-  }else if (current_freq>3e8){
-    current_freq = 3e8;
+  if (current_freq<1000){
+    current_freq = 1e3;
+  }else if (current_freq>5e8){
+    current_freq = 5e8;
   }
+  // if (current_freq<2e8){
+  //   current_freq = 2e8;
+  // }else if (current_freq>3e8){
+  //   current_freq = 3e8;
+  // }
 }
 
 void Static_out::update(){

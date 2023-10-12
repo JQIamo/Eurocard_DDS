@@ -1,5 +1,5 @@
 // SetListArduino library modified for DDS with an analog control by Oliver/Juntian Tu at JQI in May. 2023
-// Inherited and editted from hhttps://github.com/JQIamo/SetListArduino-arduino written by Neal Pisenti at JQI
+// Inherited and editted from https://github.com/JQIamo/SetListArduino-arduino written by Neal Pisenti at JQI
 
 /*
    SetListArduino.cpp - Arduino Integration for SetList computer control
