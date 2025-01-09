@@ -131,11 +131,11 @@ void AD9910::setFreq(uint32_t freq, uint8_t profile){  // In this Eurocard imple
     if (profile > 7) {
         return; //invalid profile, return without doing anything
     } 
-    // if (freq>300000000){
-    //   freq = 300000000;
-    // }else if(freq<200000000){
-    //   freq = 200000000;
-    // }
+    if (freq>freq_upperlim){
+      freq = freq_upperlim;
+    }else if(freq<freq_lowerlim){
+      freq = freq_lowerlim;
+    }
 
     // set _freq and _ftw variables
     _freq[profile] = freq;
@@ -162,18 +162,23 @@ void AD9910::setWave(uint32_t freq, uint32_t phase_offset, uint32_t amp, uint8_t
     if (profile > 7) {
         return; //invalid profile, return without doing anything
     } 
-    // if (freq>300000000){
-    //   freq = 300000000;
-    // }else if(freq<200000000){
-    //   freq = 200000000;
-    // }
+    if (freq>freq_upperlim){
+      freq = freq_upperlim;
+    }else if(freq<freq_lowerlim){
+      freq = freq_lowerlim;
+    }
     _freq[profile] = freq;
     _ftw[profile] = round(freq * RESOLUTION / _refClk) ;
 
     _phase_offset[profile] = phase_offset;
     _pow[profile] = round(phase_offset * (65536-1) / 360) ;
 
-    _amp[profile] = amp;
+    // if (amp>49){
+    //   amp = 49;
+    // }
+
+
+    _amp[profile] = amp; 
     _asf[profile] = round(amp * (16384-1) / 100);
 
     reg_t payload;

@@ -119,7 +119,7 @@
 */
 typedef void (*GenericSetListCallback)(void*, int*);
 
-
+extern int is_loop;
 /***********************************************
     class SetListBase
 ************************************************/

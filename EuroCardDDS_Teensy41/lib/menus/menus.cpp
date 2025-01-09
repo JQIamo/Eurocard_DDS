@@ -7,6 +7,8 @@
 #include "encoder.h"
 #include <EEPROM.h>
 
+const int freq_upperlim = 85e6;
+const int freq_lowerlim = 35e6;
 /*
  The containing relation of the menus (which is realized by Linkedlist library) is:
     root->{
@@ -340,11 +342,11 @@ void Static_out::checker(){
   }else if (current_freq>5e8){
     current_freq = 5e8;
   }
-  // if (current_freq<2e8){
-  //   current_freq = 2e8;
-  // }else if (current_freq>3e8){
-  //   current_freq = 3e8;
-  // }
+  if (current_freq<freq_lowerlim){
+    current_freq = freq_lowerlim;
+  }else if (current_freq>freq_upperlim){
+    current_freq = freq_upperlim;
+  }
 }
 
 void Static_out::update(){

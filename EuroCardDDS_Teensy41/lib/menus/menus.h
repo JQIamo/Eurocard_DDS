@@ -8,6 +8,10 @@
 #include "LinkedList.h"
 #include <string> 
 
+extern const int freq_upperlim;
+extern const int freq_lowerlim;
+
+
 extern uint8_t channel_index;
 
 class Menu {

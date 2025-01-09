@@ -724,6 +724,7 @@ void SetListArduino::clearSerialBuffer(){
 extern SetListArduino SetListImage;
 
 void SetListISR::firstTriggerInterrupt(){
+	is_loop = 0;
 	SetListImage.triggerUpdate();
     
     // switch interrupt to trigger on CHANGE for rest of trigger pulses
@@ -733,6 +734,7 @@ void SetListISR::firstTriggerInterrupt(){
 }
 
 void SetListISR::restTriggerInterrupt(){
+	is_loop = 0;
     SetListImage.triggerUpdate();
 }
 

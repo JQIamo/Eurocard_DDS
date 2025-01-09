@@ -6,7 +6,7 @@
 #include <EEPROM.h>
 
 #include "LCD.h"
-#include "menus.h"
+// #include "menus.h"
 #include "pin_assign.h"
 #include <AD9910.h>
 #include "encoder.h"
@@ -18,13 +18,18 @@ int analog_freq;
 int is_master = 0; // 0 for non-determined; 1 for master; 2 for slave
 char serial_buffer[SERIAL_BUFFER_SIZE];
 SetListArduino SetListImage(SETLIST_TRIG);
+int * loop_param;
+int is_loop=0;
+
 
 //Prototype functions
 void setFreq0(AD9910 * dds, int * params);
+void FreqLoop0(AD9910 * dds, int * params);
 void setWave0(AD9910 * dds, int * params);
 void setAnalogMode0(AD9910 * dds, int * params);
 void followAnalog0(AD9910 dds, int analog_freq,int analog_amp);
 void setup() {
+  is_loop = 0;
   delay(1000);
   SPI.begin(); // SPI is begun before lcd intentionally since I used its MISO pin for the lcd control
   delay(50);
@@ -65,9 +70,7 @@ void setup() {
   DDS0.initialize(40000000,25);
   delay(100);
 
-  // DDS0.setFreq(250000000);
-  // DDS0.setWave(250000000,0,100);
-  DDS0.setWave(137000000,0,10);
+  DDS0.setWave(60000000,0,100);
   delay(10);
   
   // SetListImage.registerDevice(DDS0, channel_index);
@@ -76,6 +79,7 @@ void setup() {
   SetListImage.registerCommand("f", 0, setFreq0);
   SetListImage.registerCommand("w", 0, setWave0);
   SetListImage.registerCommand("a", 0, setAnalogMode0);
+  SetListImage.registerCommand("fl", 0, FreqLoop0);
   if (if_serial){
   Serial5.setTX(20);
   Serial5.setRX(21);
@@ -90,6 +94,9 @@ void setup() {
 
 
 void loop() {
+  if(is_loop){
+    FreqLoop0(&DDS0,loop_param);
+  }else{
    char encoder_active = encoder.reader();
    if (encoder_active){
    root._active->process(encoder_active);
@@ -128,7 +135,7 @@ void loop() {
       SetListImage.readSerialH(5);
     }
   }
-}
+}}
 
 void setAnalogMode0(AD9910 * dds, int * params){
   dds->isAnalogMode = true;
@@ -158,6 +165,22 @@ void setFreq0(AD9910 * dds, int * params){
   double dfreq = (double)params[0]; //(frequency, in Hz)
   int freq = (int)(dfreq);
   dds->setFreq(freq);
+}
+
+void FreqLoop0(AD9910 * dds, int * params){
+  if (!is_loop){
+  if(dds->isAnalogMode){
+    dds->isAnalogMode = false;
+  }
+  is_loop = 1;
+  loop_param = params;
+  }
+  double dfreq1 = (double)params[0]; //(frequency, in Hz)
+  int freq1 = (int)(dfreq1);
+  dds->setFreq(freq1);
+  double dfreq2 = (double)params[1]; //(frequency, in Hz)
+  int freq2 = (int)(dfreq2);
+  dds->setFreq(freq2);
 }
 
 
