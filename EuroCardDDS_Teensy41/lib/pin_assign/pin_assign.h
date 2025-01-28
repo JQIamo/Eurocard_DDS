@@ -11,6 +11,9 @@
 
 // \name Pins for DDS-type objects
 
+#ifndef PIN_ASSIGN_H
+#define PIN_ASSIGN_H
+
 
 #define DDS0_RESET 		1
 #define DDS0_CS 		10
@@ -52,3 +55,5 @@
 #define SERIAL_RX   	21
 
 //! @}
+
+#endif

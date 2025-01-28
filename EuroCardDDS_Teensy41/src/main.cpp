@@ -6,7 +6,7 @@
 #include <EEPROM.h>
 
 #include "LCD.h"
-// #include "menus.h"
+#include "settings.h"
 #include "pin_assign.h"
 #include <AD9910.h>
 #include "encoder.h"
@@ -24,6 +24,7 @@ int is_loop=0;
 
 //Prototype functions
 void setFreq0(AD9910 * dds, int * params);
+void setAmp0(AD9910 * dds, int * params);
 void FreqLoop0(AD9910 * dds, int * params);
 void setWave0(AD9910 * dds, int * params);
 void setAnalogMode0(AD9910 * dds, int * params);
@@ -52,6 +53,7 @@ void setup() {
   root.add(&analog_switch);
   root.add(&analog_setting);
   root.add(&static_out);
+  root.add(&static_out_amp);
   root.add(&channel_set);
   analog_setting.add(&freq_max);
   analog_setting.add(&freq_min);
@@ -70,7 +72,7 @@ void setup() {
   DDS0.initialize(40000000,25);
   delay(100);
 
-  DDS0.setWave(60000000,0,100);
+  DDS0.setWave(DEFAULT_FREQ,0,DEFAULT_AMP);
   delay(10);
   
   // SetListImage.registerDevice(DDS0, channel_index);
@@ -79,6 +81,7 @@ void setup() {
   SetListImage.registerCommand("f", 0, setFreq0);
   SetListImage.registerCommand("w", 0, setWave0);
   SetListImage.registerCommand("a", 0, setAnalogMode0);
+  SetListImage.registerCommand("am", 0, setAmp0);
   SetListImage.registerCommand("fl", 0, FreqLoop0);
   if (if_serial){
   Serial5.setTX(20);
@@ -165,6 +168,15 @@ void setFreq0(AD9910 * dds, int * params){
   double dfreq = (double)params[0]; //(frequency, in Hz)
   int freq = (int)(dfreq);
   dds->setFreq(freq);
+}
+
+void setAmp0(AD9910 * dds, int * params){
+  if(dds->isAnalogMode){
+    dds->isAnalogMode = false;
+  }
+  double damp = (double)params[0]; 
+  int amp = (int)(damp);
+  dds->setAmp(amp);
 }
 
 void FreqLoop0(AD9910 * dds, int * params){

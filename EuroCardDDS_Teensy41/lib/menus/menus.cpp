@@ -7,8 +7,6 @@
 #include "encoder.h"
 #include <EEPROM.h>
 
-const int freq_upperlim = 85e6;
-const int freq_lowerlim = 35e6;
 /*
  The containing relation of the menus (which is realized by Linkedlist library) is:
     root->{
@@ -342,10 +340,10 @@ void Static_out::checker(){
   }else if (current_freq>5e8){
     current_freq = 5e8;
   }
-  if (current_freq<freq_lowerlim){
-    current_freq = freq_lowerlim;
-  }else if (current_freq>freq_upperlim){
-    current_freq = freq_upperlim;
+  if (current_freq<FREQ_LOWERLIM){
+    current_freq = FREQ_LOWERLIM;
+  }else if (current_freq>FREQ_UPPERLIM){
+    current_freq = FREQ_UPPERLIM;
   }
 }
 
@@ -357,6 +355,51 @@ void Static_out::update(){
   _display->printer(place_holder);
 }
 
+
+Static_out_amp::Static_out_amp(const char * display_name, LCD * output)
+  : Menu(display_name, output){};
+
+void Static_out_amp::enter(){
+  current_amp = DDS0._amp[0];
+  sprintf(place_holder,"Amp:%3li",current_amp);
+  _display->setCursor(0, 0);
+  _display->printer(place_holder);
+  _display->setCursor(0, 1);
+  _display->printer("");  // This is an arrow pointing upward used as a cursor
+}
+
+
+void Static_out_amp::process(char c){
+  if (c == 'h'){
+    exit();
+  }else{
+    if (c == '+' || c == 'p' || c == 'P'){
+    current_amp += 1;
+    }else if (c == '-' || c == 'm' || c == 'M'){
+    current_amp -= 1;
+  }
+  checker();
+  update();
+  } 
+}
+
+void Static_out_amp::checker(){
+  if (current_amp<AMP_LOWERLIM){
+    current_amp = AMP_LOWERLIM;
+  }else if (current_amp>AMP_UPPERLIM){
+    current_amp = AMP_UPPERLIM;
+  }
+}
+
+void Static_out_amp::update(){
+  DDS0.setAmp(current_amp);
+  sprintf(place_holder,"Amp:%3li",current_amp);
+  _display->setCursor(0, 0);
+  _display->printer(place_holder);
+}
+
+
+
 uint8_t channel_index;
 
 Root root("root", &lcd);
@@ -364,7 +407,8 @@ Menu analog_setting("ANLG_SET", &lcd);
 Freq_max freq_max("MaxFreq:200MHz", &lcd);  // Menu for the maximum frequency for analog mode
 Freq_min freq_min("MinFreq:100MHz", &lcd);  // Menu for the minimum frequency for analog mode
 A_switch analog_switch("ANLG:OFF", &lcd);   // Menu for switching the analog mode
-Static_out static_out("Static_Mode",&lcd);  // Menu for switching and setting the static mode
+Static_out static_out("Static_Freq",&lcd);  // Menu for switching and setting the static mode
+Static_out_amp static_out_amp("Static_Amp",&lcd);  // Menu for switching and setting the static mode
 Back back("BACK", &lcd);                    // Menu for going back to root from analog_setting
 Channel_set channel_set("", &lcd);          // Menu for setting the channel index of the module; 
                                             //   notice its display name is assigned in main.cpp
