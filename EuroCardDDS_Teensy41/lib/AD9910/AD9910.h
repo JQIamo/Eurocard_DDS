@@ -22,6 +22,9 @@
 
 #include "Arduino.h"
 #include "pin_assign.h"
+#include "settings.h"
+#include "SPI.h"
+#include <math.h>
 #include "menus.h"
 
 #define CLOCKSPEED 40000000 // Teensy recommends a maximum SCLK speed of 70MHz; 40 MHz is enough in our case
@@ -67,6 +70,7 @@ class AD9910
         // Sets wave
         void setWave(unsigned long freq, unsigned long phase_offset, unsigned long amp, uint8_t profile = 0);
 
+        void setAmp(unsigned long amp, uint8_t profile = 0);
         // Gets current frequency tuning word
         unsigned long getFTW(uint8_t profile = 0);
         
