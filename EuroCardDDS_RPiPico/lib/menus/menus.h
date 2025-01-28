@@ -7,8 +7,6 @@
 #include "LCD.h"
 #include "LinkedList.h"
 #include <string> 
-#include "pin_assign.h"
-#include "settings.h"
 
 extern uint8_t channel_index;
 
@@ -105,16 +103,7 @@ class Static_out: public Menu{
     virtual void process(char c);
 };
 
-class Static_out_amp: public Menu{
-  public:
-    Static_out_amp(const char * display_name, LCD * display);
-    long current_amp;
-    char place_holder[17];
-    virtual void enter();
-    virtual void checker();
-    virtual void update();
-    virtual void process(char c);
-};
+
 
 extern Root root;
 extern Menu analog_setting;
@@ -123,6 +112,5 @@ extern Freq_min freq_min;
 extern A_switch analog_switch;
 extern Channel_set channel_set;
 extern Static_out static_out;
-extern Static_out_amp static_out_amp;
 extern Back back;
 #endif

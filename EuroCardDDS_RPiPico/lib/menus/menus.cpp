@@ -111,7 +111,7 @@ void Back::enter(){ // Back is not a real menu; it only takes you to its parent 
 Freq_max::Freq_max(const char * display_name, LCD * output)
   : Menu(display_name, output){
     strcpy(unit,"MHz");
-    current_mfreq=300;
+    current_mfreq=200;
   };
 
 void Freq_max::update(){
@@ -214,7 +214,7 @@ void Freq_max::exit(){
 Freq_min::Freq_min(const char * display_name, LCD * output)
   : Freq_max(display_name, output){
     strcpy(unit,"MHz");
-    current_mfreq=200;
+    current_mfreq=100;
 };
 
 void Freq_min::realtime(){
@@ -278,7 +278,10 @@ void Channel_set::process(char c){
 
 void Channel_set::exit(){
   channel_index = current_channel; // Set the range to the DDS
-  EEPROM.update(0,channel_index);  // Save the new index to memory
+  if (channel_index != EEPROM.read(0)){
+    EEPROM.write(0,channel_index);  // Save the new index to memory
+    EEPROM.commit();
+  }
   _parent->enter();
 };
 
@@ -336,69 +339,18 @@ void Static_out::process(char c){
 
 void Static_out::checker(){
   if (current_freq<1000){
-    current_freq = 1e3;
-  }else if (current_freq>5e8){
-    current_freq = 5e8;
-  }
-  if (current_freq<FREQ_LOWERLIM){
-    current_freq = FREQ_LOWERLIM;
-  }else if (current_freq>FREQ_UPPERLIM){
-    current_freq = FREQ_UPPERLIM;
+    current_freq = 1000;
+  }else if (current_freq>4e8){
+    current_freq = 400000000;
   }
 }
 
 void Static_out::update(){
-  // DDS0.setWave(current_freq,0,100); // Maybe setFreq? - Yes
-  DDS0.setFreq(current_freq);
+  DDS0.setWave(current_freq,0,100); // Maybe setFreq?
   sprintf(place_holder,"Freq:%9liHz",current_freq);
   _display->setCursor(0, 0);
   _display->printer(place_holder);
 }
-
-
-Static_out_amp::Static_out_amp(const char * display_name, LCD * output)
-  : Menu(display_name, output){};
-
-void Static_out_amp::enter(){
-  current_amp = DDS0._amp[0];
-  sprintf(place_holder,"Amp:%3li",current_amp);
-  _display->setCursor(0, 0);
-  _display->printer(place_holder);
-  _display->setCursor(0, 1);
-  _display->printer("");  // This is an arrow pointing upward used as a cursor
-}
-
-
-void Static_out_amp::process(char c){
-  if (c == 'h'){
-    exit();
-  }else{
-    if (c == '+' || c == 'p' || c == 'P'){
-    current_amp += 1;
-    }else if (c == '-' || c == 'm' || c == 'M'){
-    current_amp -= 1;
-  }
-  checker();
-  update();
-  } 
-}
-
-void Static_out_amp::checker(){
-  if (current_amp<AMP_LOWERLIM){
-    current_amp = AMP_LOWERLIM;
-  }else if (current_amp>AMP_UPPERLIM){
-    current_amp = AMP_UPPERLIM;
-  }
-}
-
-void Static_out_amp::update(){
-  DDS0.setAmp(current_amp);
-  sprintf(place_holder,"Amp:%3li",current_amp);
-  _display->setCursor(0, 0);
-  _display->printer(place_holder);
-}
-
-
 
 uint8_t channel_index;
 
@@ -407,8 +359,7 @@ Menu analog_setting("ANLG_SET", &lcd);
 Freq_max freq_max("MaxFreq:200MHz", &lcd);  // Menu for the maximum frequency for analog mode
 Freq_min freq_min("MinFreq:100MHz", &lcd);  // Menu for the minimum frequency for analog mode
 A_switch analog_switch("ANLG:OFF", &lcd);   // Menu for switching the analog mode
-Static_out static_out("Static_Freq",&lcd);  // Menu for switching and setting the static mode
-Static_out_amp static_out_amp("Static_Amp",&lcd);  // Menu for switching and setting the static mode
+Static_out static_out("Static_Mode",&lcd);  // Menu for switching and setting the static mode
 Back back("BACK", &lcd);                    // Menu for going back to root from analog_setting
 Channel_set channel_set("", &lcd);          // Menu for setting the channel index of the module; 
                                             //   notice its display name is assigned in main.cpp

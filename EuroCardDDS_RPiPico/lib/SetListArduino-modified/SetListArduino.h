@@ -55,6 +55,7 @@
 #define SERIAL_BUFFER_SIZE 65536		// MODIFIED: Increased to fit larger Setlist
 #endif
 
+
 //! Length of SetListArduino::_deviceList; Maximum number of devices allowed.
 #ifndef MAX_DEVICE_NUMBER
 #define MAX_DEVICE_NUMBER 6
@@ -119,7 +120,7 @@
 */
 typedef void (*GenericSetListCallback)(void*, int*);
 
-extern int is_loop;
+
 /***********************************************
     class SetListBase
 ************************************************/
@@ -564,7 +565,7 @@ class SetListArduino {
 
 		void readSerialH(int i); // MODIFIED
 
-		HardwareSerial *nSerial;
+		SerialUART *nSerial;
 
 
         
@@ -573,8 +574,8 @@ class SetListArduino {
 		
 		char * get_buffer(); // MODIFIED
 
-		char serial_port_recorder[9] = "00000000"; // MODIFIED
-
+		char serial_port_recorder[3] = "00"; // MODIFIED
+        
     private:
 
 		

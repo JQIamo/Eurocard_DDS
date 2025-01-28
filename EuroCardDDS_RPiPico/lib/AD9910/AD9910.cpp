@@ -18,7 +18,11 @@
  */
 
 
+#include "Arduino.h"
+#include "SPI.h"
 #include "AD9910.h"
+#include <math.h>
+#include "pin_assign.h"
 
 /* CONSTRUCTOR */
 
@@ -127,16 +131,24 @@ void AD9910::setFreq(uint32_t freq, uint8_t profile){  // In this Eurocard imple
     if (profile > 7) {
         return; //invalid profile, return without doing anything
     } 
-    if (freq>FREQ_UPPERLIM){
-      freq = FREQ_UPPERLIM;
-    }else if(freq<FREQ_LOWERLIM){
-      freq = FREQ_LOWERLIM;
-    }
-
+   
     // set _freq and _ftw variables
-    uint32_t amp=_amp[profile];
-    uint32_t phase_offset=_phase_offset[profile];
-    setWave(freq,phase_offset,amp,profile);
+    _freq[profile] = freq;
+    _ftw[profile] = round(freq * RESOLUTION / _refClk) ;
+
+    reg_t payload;
+    payload.bytes = 8;
+    payload.addr = 0x0E + profile;
+    payload.data.block[0] =  _ftw[profile];
+    
+    // need to write a way around updating the amplitude/phase words to default here...
+    // 
+    payload.data.block[1] = 0x08B50000;
+
+	// actually writes to register
+    //AD9910::writeRegister(CFR1Info, CFR1);
+    writeRegister(payload);
+    update();
 }
 
 // setWave(): Set the wave output in the single profile mode of AD9910
@@ -145,24 +157,14 @@ void AD9910::setWave(uint32_t freq, uint32_t phase_offset, uint32_t amp, uint8_t
     if (profile > 7) {
         return; //invalid profile, return without doing anything
     } 
-    if (freq>FREQ_UPPERLIM){
-      freq = FREQ_UPPERLIM;
-    }else if(freq<FREQ_LOWERLIM){
-      freq = FREQ_LOWERLIM;
-    }
-    if (amp>AMP_UPPERLIM){
-      amp = AMP_UPPERLIM;
-    }else if(amp<AMP_LOWERLIM){
-      amp = AMP_LOWERLIM;
-    }
-
+   
     _freq[profile] = freq;
     _ftw[profile] = round(freq * RESOLUTION / _refClk) ;
 
     _phase_offset[profile] = phase_offset;
     _pow[profile] = round(phase_offset * (65536-1) / 360) ;
 
-    _amp[profile] = amp; 
+    _amp[profile] = amp;
     _asf[profile] = round(amp * (16384-1) / 100);
 
     reg_t payload;
@@ -175,36 +177,20 @@ void AD9910::setWave(uint32_t freq, uint32_t phase_offset, uint32_t amp, uint8_t
     update();
 }
 
-
-void AD9910::setAmp(uint32_t amp, uint8_t profile){
-  // uint32_t a =micros();
-  if (profile > 7) {
-      return; //invalid profile, return without doing anything
-  } 
-  if (amp>AMP_UPPERLIM){
-    amp = AMP_UPPERLIM;
-  }else if(amp<AMP_LOWERLIM){
-    amp = AMP_LOWERLIM;
-  }
-  uint32_t freq=_freq[profile];
-  uint32_t phase_offset=_phase_offset[profile];
-  setWave(freq,phase_offset,amp,profile);
-}
-
 //writeRegister() -- The command writes data to the register of AD9910; normally called by functions above
 void AD9910::writeRegister(reg_t payload){
     // uint32_t a =micros();
-    SPI.beginTransaction(SPISettings(CLOCKSPEED, MSBFIRST, SPI_MODE0));
+    SPI1.beginTransaction(SPISettings(CLOCKSPEED, MSBFIRST, SPI_MODE0));
     
     digitalWrite(_ssPin, LOW);
-    SPI.transfer(payload.addr);
+    SPI1.transfer(payload.addr);
     // MSB
     for (int i = payload.bytes; i > 0; i--){
-        SPI.transfer(payload.data.bytes[i-1]);
+        SPI1.transfer(payload.data.bytes[i-1]);
     }
     digitalWrite(_ssPin, HIGH);
     
-    SPI.endTransaction();
+    SPI1.endTransaction();
     // Serial.println(micros()-a); // Takes around 3 us per loop
 }
 

@@ -12,15 +12,15 @@ void LCD::init(){
   pinMode(_cs, OUTPUT);
   pinMode(_rs, OUTPUT);
 
-  digitalWriteFast(_rst, HIGH);
-  digitalWriteFast(_rs, HIGH);
-  digitalWriteFast(_cs, HIGH);
+  digitalWrite(_rst, HIGH);
+  digitalWrite(_rs, HIGH);
+  digitalWrite(_cs, HIGH);
 
-  digitalWriteFast(_rst, LOW);
+  digitalWrite(_rst, LOW);
   delay(2);
   send(0x30, COMMAND); // wakeup
   delay(2);
-  digitalWriteFast(_rst, HIGH);
+  digitalWrite(_rst, HIGH);
   
   send(0x30, COMMAND); // wakeup
   send(0x30, COMMAND); // wakeup
@@ -39,7 +39,7 @@ void LCD::init(){
 }
 
 void LCD::begin(uint8_t rows, uint8_t cols, uint8_t dotsize){
-  SPI1.begin();
+  SPI.begin();
   init();
   // do we need to call parent begin??
   LCD_BASE::begin(rows, cols, dotsize);
@@ -53,14 +53,14 @@ void LCD::send(uint8_t value, uint8_t mode){
   bool send_mode = ( mode == DATA );
 
   noInterrupts();
-  SPI1.beginTransaction(_spi_settings);
-  digitalWriteFast(_cs, LOW);
-  digitalWriteFast(_rs, send_mode);
+  SPI.beginTransaction(_spi_settings);
+  digitalWrite(_cs, LOW);
+  digitalWrite(_rs, send_mode);
   delayMicroseconds(150); // do we need this?
-  SPI1.transfer(value);
+  SPI.transfer(value);
   delayMicroseconds(150); // do we need this?
-  SPI1.endTransaction();
-  digitalWriteFast(_cs, HIGH);
+  SPI.endTransaction();
+  digitalWrite(_cs, HIGH);
   interrupts();
 }
 void LCD::printer(const char * s){

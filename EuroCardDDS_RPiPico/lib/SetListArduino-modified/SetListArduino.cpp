@@ -37,9 +37,9 @@
 SetListBase::SetListBase(){;}   
 void SetListBase::insertToSetList(int pos, GenericSetListCallback func, int * params){;}
 void SetListBase::executeSetList(int pos){;}
-int  SetListBase::getSetListFunc(int pos){;}
-int * SetListBase::getSetListParams(int pos){;}
-int SetListBase::getSetListLength(){;}
+int  SetListBase::getSetListFunc(int pos){return 0;}
+int * SetListBase::getSetListParams(int pos){return 0;}
+int SetListBase::getSetListLength(){return 0;}
 void SetListBase::clearSetList(){;}
 
 
@@ -92,6 +92,7 @@ int SetListArduino::getTriggerChannel(){
 //      add the appropriate callbacks to the appropriate device's _setlist.
 // 		This is based heavily off of kroimon's SerialCommand library:
 //      https://github.com/kroimon/Arduino-SerialCommand
+
 void SetListArduino::readSerial(){  // MODIFIED
 	// initialize error flag to false; will throw if encounters issue.
 	// MODIFIED {
@@ -388,29 +389,7 @@ void SetListArduino::readSerialH(int i){  // MODIFIED
 		case 2:
 			nSerial = &Serial2;
 			break;
-		case 3:
-			nSerial = &Serial3;
-			break;
-		case 4:
-			nSerial = &Serial4;
-			break;
-		case 5:
-			nSerial = &Serial5;
-			break;
-		case 6:
-			nSerial = &Serial6;
-			break;
-		case 7:
-			nSerial = &Serial7;
-			break;
-		case 8:
-			nSerial = &Serial8;
-			break;
 	}
-	// if (serial_port_recorder[i-1] == '0'){
-	// 	nSerial->begin(115200);
-	// 	serial_port_recorder[i-1] = '1';
-	// 	}
 	// MODIFIED with all following Serial replaced by nSerial }
 	_errorFlag = false;
 	bool ignore = true; // MODIFIED: Since we are using different modules with single DDS on each module,
@@ -419,7 +398,6 @@ void SetListArduino::readSerialH(int i){  // MODIFIED
 	bool run = false;
 	passer_tracker=0;
 	_char_passer[0] = '\0'; // Used for passing the received content to other modules
-	// Serial.println(nSerial);
     while (nSerial->available() > 0){
 		// Serial.println(nSerial->available());
         // read in next character from serial stream
@@ -724,7 +702,6 @@ void SetListArduino::clearSerialBuffer(){
 extern SetListArduino SetListImage;
 
 void SetListISR::firstTriggerInterrupt(){
-	is_loop = 0;
 	SetListImage.triggerUpdate();
     
     // switch interrupt to trigger on CHANGE for rest of trigger pulses
@@ -734,7 +711,6 @@ void SetListISR::firstTriggerInterrupt(){
 }
 
 void SetListISR::restTriggerInterrupt(){
-	is_loop = 0;
     SetListImage.triggerUpdate();
 }
 

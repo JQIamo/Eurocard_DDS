@@ -22,10 +22,6 @@
 
 #include "Arduino.h"
 #include "pin_assign.h"
-#include "settings.h"
-#include "SPI.h"
-#include <math.h>
-#include "menus.h"
 
 #define CLOCKSPEED 40000000 // Teensy recommends a maximum SCLK speed of 70MHz; 40 MHz is enough in our case
 
@@ -53,7 +49,7 @@ class AD9910
         unsigned int minAnalogFreq = 1e8;
 
         // Initialize with refIn frequency, and clock multiplier value
-        void initialize(unsigned long ref = 40000000, uint8_t mult=25, bool reset = false);
+        void initialize(unsigned long ref = 1000000000, uint8_t mult=0, bool reset = false);
 
         // Reset the DDS
         void reset();
@@ -70,7 +66,6 @@ class AD9910
         // Sets wave
         void setWave(unsigned long freq, unsigned long phase_offset, unsigned long amp, uint8_t profile = 0);
 
-        void setAmp(unsigned long amp, uint8_t profile = 0);
         // Gets current frequency tuning word
         unsigned long getFTW(uint8_t profile = 0);
         

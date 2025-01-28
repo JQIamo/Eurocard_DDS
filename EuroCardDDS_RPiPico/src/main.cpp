@@ -6,61 +6,60 @@
 #include <EEPROM.h>
 
 #include "LCD.h"
-#include "settings.h"
+#include "menus.h"
 #include "pin_assign.h"
 #include <AD9910.h>
 #include "encoder.h"
 
 
-int if_serial = 0;
-int analog_amp;
-int analog_freq;
-int is_master = 0; // 0 for non-determined; 1 for master; 2 for slave
-char serial_buffer[SERIAL_BUFFER_SIZE];
 SetListArduino SetListImage(SETLIST_TRIG);
-int * loop_param;
-int is_loop=0;
-
 
 //Prototype functions
 void setFreq0(AD9910 * dds, int * params);
-void setAmp0(AD9910 * dds, int * params);
-void FreqLoop0(AD9910 * dds, int * params);
 void setWave0(AD9910 * dds, int * params);
 void setAnalogMode0(AD9910 * dds, int * params);
 void followAnalog0(AD9910 dds, int analog_freq,int analog_amp);
+
 void setup() {
-  is_loop = 0;
   delay(1000);
-  SPI.begin(); // SPI is begun before lcd intentionally since I used its MISO pin for the lcd control
+  EEPROM.begin(256);
+  SPI1.setCS(DDS0_CS);
+  SPI1.begin(); // SPI is begun before lcd intentionally since I used the MISO pin for the lcd control
   delay(50);
-  // Serial5.begin(115200);  // Used for communicating with other microcontrollers
+  Serial1.setRX(SERIAL_RX);
+  Serial1.setTX(SERIAL_TX);
+  Serial1.setFIFOSize(SERIAL_BUFFER_SIZE);
+  Serial1.begin(115200);  // Used for communicating with other microcontroller
   delay(50);
   pinMode(LCD_RST, OUTPUT);
-  digitalWriteFast(LCD_RST, HIGH);
+  digitalWrite(LCD_RST, HIGH);
+  SPI.setTX(LCD_MOSI);
+  SPI.setSCK(LCD_CLK);
   delay(100);  
   encoder.setup();
   lcd.begin();
   lcd.cursor();
+  
+  
+
 
   char name_holder[17];
   channel_index = EEPROM.read(0);  // We use the channel index instead of the profile number to distinguish the DDSs
   sprintf(name_holder,"Channel:%1u",channel_index);
   // Setting up the menus
-  channel_set.current_channel = channel_index; // Assign the display name of channel_set menu
+  channel_set.current_channel = channel_index;
   strcpy(channel_set._display_name,name_holder);
 
   root.add(&analog_switch);
   root.add(&analog_setting);
   root.add(&static_out);
-  root.add(&static_out_amp);
   root.add(&channel_set);
   analog_setting.add(&freq_max);
   analog_setting.add(&freq_min);
   analog_setting.add(&back);
 
   delay(150);
-  // For AD9910 dds...
+// For AD9910 dds...
   pinMode(DDS0_RESET, OUTPUT);
   digitalWrite(DDS0_RESET, LOW);
   delay(100);
@@ -72,34 +71,26 @@ void setup() {
   DDS0.initialize(40000000,25);
   delay(100);
 
-  DDS0.setWave(DEFAULT_FREQ,0,DEFAULT_AMP);
+  DDS0.setFreq(10000000);
   delay(10);
-  
-  // SetListImage.registerDevice(DDS0, channel_index);
+ 
   SetListImage.registerDevice(DDS0, 0);
   
   SetListImage.registerCommand("f", 0, setFreq0);
   SetListImage.registerCommand("w", 0, setWave0);
   SetListImage.registerCommand("a", 0, setAnalogMode0);
-  SetListImage.registerCommand("am", 0, setAmp0);
-  SetListImage.registerCommand("fl", 0, FreqLoop0);
-  if (if_serial){
-  Serial5.setTX(20);
-  Serial5.setRX(21);
-  Serial5.begin(115200);
-  }
-  if(!if_serial){is_master = 2;}
+
   root.enter();
 }
 
 
-
+int analog_amp;
+int analog_freq;
+int is_master = 0; // 0 for non-determined; 1 for master; 2 for slave
+char serial_buffer[SERIAL_BUFFER_SIZE];
 
 
 void loop() {
-  if(is_loop){
-    FreqLoop0(&DDS0,loop_param);
-  }else{
    char encoder_active = encoder.reader();
    if (encoder_active){
    root._active->process(encoder_active);
@@ -113,11 +104,10 @@ void loop() {
     followAnalog0(DDS0,analog_freq,analog_amp);
 
    }else{
-    if (is_master != 2 or !if_serial){
-      SetListImage.readSerial(); // 0 is the USB Serial; 5 is the Serial pin
+    if (is_master != 2){
+      SetListImage.readSerial(); // 0 is the USB Serial; 1 is the Serial pin
       if (SetListImage.get_buffer()[0]=='\0'){
         if(is_master == 0){
-          Serial5.addMemoryForRead(serial_buffer,SERIAL_BUFFER_SIZE);
           SetListImage.readSerialH(5);
           if (SetListImage.get_buffer()[0]!='\0'){
             is_master = 2;
@@ -127,18 +117,15 @@ void loop() {
         delay(50); // Need some time for transferring from receiving to tranferring
         if (is_master == 0){
           is_master = 1;
-          Serial5.addMemoryForWrite(serial_buffer,SERIAL_BUFFER_SIZE);
         }
-        if (if_serial){
-        Serial5.print(SetListImage.get_buffer());
-        Serial5.flush();
-        }
+        Serial1.print(SetListImage.get_buffer());
+        Serial1.flush();
       }
-    }else if (if_serial){
-      SetListImage.readSerialH(5);
+    }else{
+      SetListImage.readSerialH(1);
     }
   }
-}}
+}
 
 void setAnalogMode0(AD9910 * dds, int * params){
   dds->isAnalogMode = true;
@@ -152,10 +139,6 @@ void followAnalog0(AD9910 dds, int analog_freq,int analog_amp){
   double dfreq = ((double)analog_freq * (maxAnalogFreq - minAnalogFreq)) * 4 / 3069. +minAnalogFreq;
   uint32_t freq = (uint32_t)(dfreq);
   uint32_t amp = (uint32_t)analog_amp * 400 / 3069 ;
-        // char kk[20] = "";
-        // sprintf(kk, "k%u",amp);
-        // lcd.setCursor(0, 0);
-        // lcd.printer(kk);
   if (amp> 100){amp=100;}
   dds.setWave(freq,0,amp);
   // Serial.println(micros()-a); Takes around 5 us per loop
@@ -168,31 +151,6 @@ void setFreq0(AD9910 * dds, int * params){
   double dfreq = (double)params[0]; //(frequency, in Hz)
   int freq = (int)(dfreq);
   dds->setFreq(freq);
-}
-
-void setAmp0(AD9910 * dds, int * params){
-  if(dds->isAnalogMode){
-    dds->isAnalogMode = false;
-  }
-  double damp = (double)params[0]; 
-  int amp = (int)(damp);
-  dds->setAmp(amp);
-}
-
-void FreqLoop0(AD9910 * dds, int * params){
-  if (!is_loop){
-  if(dds->isAnalogMode){
-    dds->isAnalogMode = false;
-  }
-  is_loop = 1;
-  loop_param = params;
-  }
-  double dfreq1 = (double)params[0]; //(frequency, in Hz)
-  int freq1 = (int)(dfreq1);
-  dds->setFreq(freq1);
-  double dfreq2 = (double)params[1]; //(frequency, in Hz)
-  int freq2 = (int)(dfreq2);
-  dds->setFreq(freq2);
 }
 
 
