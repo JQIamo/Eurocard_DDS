@@ -45,6 +45,8 @@ void AD9910::initialize(unsigned long ref, uint8_t divider, bool reset){
     pinMode(_ssPin, OUTPUT);
     pinMode(_resetPin, OUTPUT);
     pinMode(_updatePin, OUTPUT);
+    pinMode(DDS0_DRCTL, OUTPUT);
+    pinMode(DDS0_DRHOLD, OUTPUT);
     pinMode(_ps0, OUTPUT);
     pinMode(_ps1, OUTPUT);
     pinMode(_ps2, OUTPUT);
@@ -54,6 +56,8 @@ void AD9910::initialize(unsigned long ref, uint8_t divider, bool reset){
     digitalWrite(_ssPin, HIGH);
     digitalWrite(_resetPin, LOW);
     digitalWrite(_updatePin, LOW);
+    digitalWrite(DDS0_DRCTL, LOW);
+    digitalWrite(DDS0_DRHOLD, LOW);
     digitalWrite(_ps0, LOW);
     digitalWrite(_ps1, LOW);
     digitalWrite(_ps2, LOW);
@@ -72,7 +76,7 @@ void AD9910::initialize(unsigned long ref, uint8_t divider, bool reset){
   
   reg_t cfr2;
   cfr2.addr = 0x01;
-  cfr2.data.bytes[0] = 0x02;
+  cfr2.data.bytes[0] = 0x20;
   cfr2.data.bytes[1] = 0x08;
   cfr2.data.bytes[2] = 0x00;  // sync_clk pin disabled; not used
   cfr2.data.bytes[3] = 0x01;  // enable ASF
@@ -84,10 +88,10 @@ void AD9910::initialize(unsigned long ref, uint8_t divider, bool reset){
     cfr3.data.bytes[0] = divider << 1; // pll divider
     if (divider == 0){
         cfr3.data.bytes[1] = 0x40;    // bypass pll
-        cfr3.data.bytes[3] = 0x07;
+        cfr3.data.bytes[3] = 0x07;    // bypass pll
     } else {
         cfr3.data.bytes[1] = 0x41;    // enable PLL
-        cfr3.data.bytes[3] = 0x05;
+        cfr3.data.bytes[3] = 0x05;    // 820-1150 MHz VCO band
     }
     cfr3.data.bytes[2] = 0x3F;
     
@@ -127,6 +131,10 @@ void AD9910::setFreq(uint32_t freq, uint8_t profile){  // In this Eurocard imple
     if (profile > 7) {
         return; //invalid profile, return without doing anything
     } 
+    if (this->isDRG){
+      disable_DRG();
+      this->isDRG = 0;
+    }
     if (freq>FREQ_UPPERLIM){
       freq = FREQ_UPPERLIM;
     }else if(freq<FREQ_LOWERLIM){
@@ -145,6 +153,10 @@ void AD9910::setWave(uint32_t freq, uint32_t phase_offset, uint32_t amp, uint8_t
     if (profile > 7) {
         return; //invalid profile, return without doing anything
     } 
+    if (this->isDRG){
+      disable_DRG();
+      this->isDRG = 0;
+    }
     if (freq>FREQ_UPPERLIM){
       freq = FREQ_UPPERLIM;
     }else if(freq<FREQ_LOWERLIM){
@@ -181,6 +193,10 @@ void AD9910::setAmp(uint32_t amp, uint8_t profile){
   if (profile > 7) {
       return; //invalid profile, return without doing anything
   } 
+  if (this->isDRG){
+    disable_DRG();
+    this->isDRG = 0;
+  }
   if (amp>AMP_UPPERLIM){
     amp = AMP_UPPERLIM;
   }else if(amp<AMP_LOWERLIM){
@@ -189,6 +205,104 @@ void AD9910::setAmp(uint32_t amp, uint8_t profile){
   uint32_t freq=_freq[profile];
   uint32_t phase_offset=_phase_offset[profile];
   setWave(freq,phase_offset,amp,profile);
+}
+
+
+void AD9910::setFM(double freq, double deviation, double mod_freq, double step_size){
+    // set _freq and _ftw variables
+    if (freq+deviation > FREQ_UPPERLIM){
+      freq = FREQ_UPPERLIM - deviation;
+    }else if(freq-deviation < FREQ_LOWERLIM){
+      freq = FREQ_LOWERLIM + deviation;
+    }
+    this->current_freq = freq;
+    this->deviation = deviation;
+    this->step_size = step_size;
+
+    _freq[0] = freq;
+    _ftw[0] = static_cast<uint32_t>(round(freq * RESOLUTION / _refClk));
+    uint32_t upper_lim = static_cast<uint32_t>(round((freq + deviation) * RESOLUTION / _refClk));
+    uint32_t lower_lim = static_cast<uint32_t>(round((freq - deviation) * RESOLUTION / _refClk));
+    uint32_t step_size_f = static_cast<uint32_t>(round(step_size * RESOLUTION / _refClk));
+    uint32_t step_time = static_cast<uint32_t>(round(.5 * deviation / mod_freq/ step_size * _refClk));
+
+
+    // Program the center frequency
+    reg_t payload;
+    payload.bytes = 4;
+    payload.addr = 0x0E; // profile 0
+    payload.data.block[0] =  _ftw[0];
+    writeRegister(payload);
+
+
+    // Set digital ramp configurations
+    payload.addr = 0x0B; // digital ramp limit
+    payload.bytes = 8;
+    payload.data.block[0] = lower_lim;
+    payload.data.block[1] = upper_lim;
+    writeRegister(payload);
+
+    // Set digital ramp configurations
+    payload.addr = 0x0C; // digital ramp step
+    payload.bytes = 8;
+    payload.data.block[0] = step_size_f;
+    payload.data.block[1] = step_size_f;
+    writeRegister(payload);
+
+    // Set digital ramp configurations
+    payload.addr = 0x0D; // digital ramp rate
+    payload.bytes = 4;
+    payload.data.block[0] = (step_time << 16) + step_time;
+    writeRegister(payload);
+
+    
+    // Set digital ramp configurations
+    payload.addr = 0x01; // cfr2
+    payload.data.bytes[0] = 0x20;
+    payload.data.bytes[1] = 0x08;
+    payload.data.bytes[2] = 0x0E;  // enable digital ramp with no-dwell on both limits
+    payload.data.bytes[3] = 0x01;
+    writeRegister(payload);
+    update();
+    delayMicroseconds(1);
+    digitalWrite(DDS0_DRCTL, HIGH);
+    delayMicroseconds(1);
+    digitalWrite(DDS0_DRCTL, LOW);
+}
+
+void AD9910::shrinkFM(double new_deivation){
+    uint32_t upper_lim = static_cast<uint32_t>(round((this->current_freq + new_deivation) * RESOLUTION / _refClk));
+    uint32_t lower_lim = static_cast<uint32_t>(round((this->current_freq - new_deivation) * RESOLUTION / _refClk));
+    uint32_t new_step_size = static_cast<uint32_t>(round(this->step_size *new_deivation / this->deviation * RESOLUTION / _refClk));
+
+    // Set digital ramp configurations
+    reg_t payload;
+    payload.addr = 0x0B; // digital ramp limit
+    payload.bytes = 8;
+    payload.data.block[0] = lower_lim;
+    payload.data.block[1] = upper_lim;
+    writeRegister(payload);
+
+    // Set digital ramp configurations
+    payload.addr = 0x0C; // digital ramp step
+    payload.bytes = 8;
+    payload.data.block[0] = new_step_size;
+    payload.data.block[1] = new_step_size;
+    writeRegister(payload);
+    update();
+}
+
+
+void AD9910::disable_DRG(){
+    // Disable the digital ramp; should be called before programming single tone.
+    reg_t payload;
+    payload.addr = 0x01; // cfr2
+    payload.bytes = 4;
+    payload.data.bytes[0] = 0x20;
+    payload.data.bytes[1] = 0x08;
+    payload.data.bytes[2] = 0x00; 
+    payload.data.bytes[3] = 0x01;
+    writeRegister(payload);
 }
 
 //writeRegister() -- The command writes data to the register of AD9910; normally called by functions above
@@ -208,6 +322,7 @@ void AD9910::writeRegister(reg_t payload){
     // Serial.println(micros()-a); // Takes around 3 us per loop
 }
 
+
 AD9910 DDS0(DDS0_CS, DDS0_RESET, DDS0_IOUPDATE, DDS0_PS0, DDS0_PS1, DDS0_PS2, DDS0_OSK);
 
 
@@ -216,32 +331,8 @@ AD9910 DDS0(DDS0_CS, DDS0_RESET, DDS0_IOUPDATE, DDS0_PS0, DDS0_PS1, DDS0_PS2, DD
 
 
 
-/* Unfinished/Untested/Unused functions
+/* Unfinished/Untested/Unused functions*/
 
-
-void AD9910::setDR(uint32_t upperlimit, uint32_t lowlimit, uint32_t decreStep, uint32_t increStep,uint16_t negSlope,uint16_t posSlope){
-    // set _freq and _ftw variables
-    _freq[profile] = freq;
-    _ftw[profile] = round(freq * RESOLUTION / _refClk) ;
-
-    _phase_offset[profile] = phase_offset;
-    _pow[profile] = round(phase_offset * 65536 / 360) ;
-
-    _amp[profile] = amp;
-    _asf[profile] = round(amp * 16384 / 100) ;
-
-    reg_t payload;
-    payload.bytes = 8;
-    payload.addr = 0x0E + profile;
-    payload.data.block[0] =  _ftw[profile];
-    payload.data.block[1] = _asf[profile] * 65536 + _pow[profile];
-
-	// actually writes to register
-    //AD9910::writeRegister(CFR1Info, CFR1);
-    writeRegister(payload);
-    update();
-}
-*/
 /*
 void AD9910::setAmp(double scaledAmp, byte profile){
    if (profile > 7) {

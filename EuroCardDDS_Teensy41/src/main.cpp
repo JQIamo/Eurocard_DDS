@@ -12,7 +12,7 @@
 #include "encoder.h"
 
 
-int if_serial = 0;
+const int if_serial = 0;
 int analog_amp;
 int analog_freq;
 int is_master = 0; // 0 for non-determined; 1 for master; 2 for slave
@@ -29,13 +29,17 @@ void FreqLoop0(AD9910 * dds, int * params);
 void setWave0(AD9910 * dds, int * params);
 void setAnalogMode0(AD9910 * dds, int * params);
 void followAnalog0(AD9910 dds, int analog_freq,int analog_amp);
+void shrinkFM0(AD9910 * dds, int * params);
+void setFM0(AD9910 * dds, int * params);
 void setup() {
   is_loop = 0;
   delay(1000);
   SPI.begin(); // SPI is begun before lcd intentionally since I used its MISO pin for the lcd control
   delay(50);
-  // Serial5.begin(115200);  // Used for communicating with other microcontrollers
-  delay(50);
+  if (if_serial) {
+    Serial5.begin(115200);  // Used for communicating with other microcontrollers
+    delay(50);
+  }
   pinMode(LCD_RST, OUTPUT);
   digitalWriteFast(LCD_RST, HIGH);
   delay(100);  
@@ -83,12 +87,14 @@ void setup() {
   SetListImage.registerCommand("a", 0, setAnalogMode0);
   SetListImage.registerCommand("am", 0, setAmp0);
   SetListImage.registerCommand("fl", 0, FreqLoop0);
+  SetListImage.registerCommand("fm", 0, setFM0);
+  SetListImage.registerCommand("sf", 0, shrinkFM0);
   if (if_serial){
-  Serial5.setTX(20);
-  Serial5.setRX(21);
-  Serial5.begin(115200);
+    Serial5.setTX(20);
+    Serial5.setRX(21);
+    Serial5.begin(115200);
   }
-  if(!if_serial){is_master = 2;}
+  if (!if_serial) {is_master = 2;}
   root.enter();
 }
 
@@ -97,7 +103,7 @@ void setup() {
 
 
 void loop() {
-  if(is_loop){
+  if (is_loop){
     FreqLoop0(&DDS0,loop_param);
   }else{
    char encoder_active = encoder.reader();
@@ -162,18 +168,14 @@ void followAnalog0(AD9910 dds, int analog_freq,int analog_amp){
 }
 
 void setFreq0(AD9910 * dds, int * params){
-  if(dds->isAnalogMode){
-    dds->isAnalogMode = false;
-  }
+  dds->isAnalogMode = false;
   double dfreq = (double)params[0]; //(frequency, in Hz)
   int freq = (int)(dfreq);
   dds->setFreq(freq);
 }
 
 void setAmp0(AD9910 * dds, int * params){
-  if(dds->isAnalogMode){
-    dds->isAnalogMode = false;
-  }
+  dds->isAnalogMode = false;
   double damp = (double)params[0]; 
   int amp = (int)(damp);
   dds->setAmp(amp);
@@ -181,9 +183,7 @@ void setAmp0(AD9910 * dds, int * params){
 
 void FreqLoop0(AD9910 * dds, int * params){
   if (!is_loop){
-  if(dds->isAnalogMode){
-    dds->isAnalogMode = false;
-  }
+  dds->isAnalogMode = false;
   is_loop = 1;
   loop_param = params;
   }
@@ -197,9 +197,7 @@ void FreqLoop0(AD9910 * dds, int * params){
 
 
 void setWave0(AD9910 * dds, int * params){
-  if(dds->isAnalogMode){
-    dds->isAnalogMode = false;
-  }
+  dds->isAnalogMode = false;
   double dfreq = (double)params[0]; //(frequency, in Hz)
   int freq = (int)(dfreq);
   int phase_offset = params[1];
@@ -208,6 +206,22 @@ void setWave0(AD9910 * dds, int * params){
 }
 
 
+void setFM0(AD9910 * dds, int * params){
+  dds->isDRG = 1;
+  dds->isAnalogMode = false;
+  double center_freq = (double)params[0]; //(frequency, in Hz)
+  double mod_deviation = (double)params[1]; //(frequency, in Hz)
+  double mod_freq = (double)params[2]; //(frequency, in Hz)
+  double step_size = (double)params[3]; //(frequency, in Hz)
+  dds->setFM(center_freq, mod_deviation, mod_freq, step_size);
+}
+
+void shrinkFM0(AD9910 * dds, int * params){
+  dds->isAnalogMode = false;
+  dds->isDRG = 1;
+  double new_deviation = (double)params[0]; //(frequency, in Hz)
+  dds->shrinkFM(new_deviation);
+}
 
 
 

@@ -14,6 +14,7 @@
 #ifndef PIN_ASSIGN_H
 #define PIN_ASSIGN_H
 
+//If not specified, the index is the digital pin index
 
 #define DDS0_RESET 		1
 #define DDS0_CS 		10
@@ -47,8 +48,8 @@
 
 
 #define SETLIST_TRIG	33
-#define ANALOG_AMP	    11 // This is the index of analog pin, not the real pin index
-#define ANALOG_FREQ	    10 // This is the index of analog pin, not the real pin index
+#define ANALOG_AMP	    11 // This is the index of analog pin, not the digital pin index
+#define ANALOG_FREQ	    10 // This is the index of analog pin, not the digital pin index
 
 //  \name Pins for inter-board communication
 #define SERIAL_TX	    20 // Represented as Serial5

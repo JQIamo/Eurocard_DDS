@@ -74,12 +74,13 @@ class AD9910
         // Gets current frequency tuning word
         unsigned long getFTW(uint8_t profile = 0);
         
+        void setFM(double freq, double deviation, double mod_freq, double step_size);
+        void shrinkFM(double new_deivation);
+        void disable_DRG();
         
-        // Sets frequency tuning word
-        void setFTW(unsigned long);
-
         void writeRegister(reg_t payload);
         unsigned long _freq[8],_amp[8];
+        int isDRG = 0;
    
 /*    *********************** to implement later or never ***************    
         //write scaled amplitude for the selected profile
@@ -156,8 +157,12 @@ class AD9910
         void writeAmp(long ampScaleFactor, uint8_t profile);
 
         // DDS frequency resolution
-         double RESOLUTION;// = 4294967295; // sets resolution to 2^32 = 32 bits. Using type double to avoid confusion with integer division...
+        double RESOLUTION;// = 4294967295; // sets resolution to 2^32 = 32 bits. Using type double to avoid confusion with integer division...
 
+        // DRG params
+        double deviation = 0;
+        double step_size = 0;
+        double current_freq = 0;
 };
 extern AD9910 DDS0;
 #endif
