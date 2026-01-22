@@ -1,4 +1,4 @@
-// AD9910 used for DDS with an analog control by Oliver/Juntian Tu at JQI in Jan. 2023
+// AD9910 used for DDS with an analog control by Oliver/Juntian Tu at JQI in Jan. 2026
 // Following is the comment in the original library this code is based on.
 
 /*
@@ -72,14 +72,17 @@ void AD9910::initialize(unsigned long ref, uint8_t divider, bool reset){
         AD9910::reset();
     }
     
-  delay(1);
-  
-  reg_t cfr2;
-  cfr2.addr = 0x01;
-  cfr2.data.bytes[0] = 0x20;
-  cfr2.data.bytes[1] = 0x08;
-  cfr2.data.bytes[2] = 0x00;  // sync_clk pin disabled; not used
-  cfr2.data.bytes[3] = 0x01;  // enable ASF
+    delay(1);
+    
+    // The following are the registers to be initialized for the AD9910
+    // Please check REGISTER MAP AND BIT DESCRIPTIONS in AD9910 datasheet for more details
+
+    reg_t cfr2;
+    cfr2.addr = 0x01;
+    cfr2.data.bytes[0] = 0x20;
+    cfr2.data.bytes[1] = 0x08;
+    cfr2.data.bytes[2] = 0x00;  // sync_clk pin disabled; not used
+    cfr2.data.bytes[3] = 0x01;  // enable ASF
     
     
     
@@ -96,9 +99,14 @@ void AD9910::initialize(unsigned long ref, uint8_t divider, bool reset){
     cfr3.data.bytes[2] = 0x3F;
     
     
+    reg_t dac;
+    cfr3.addr = 0x03;
+    cfr3.data.bytes[0] = 0xFF; // set output current to max
+    
     
     writeRegister(cfr2);
     writeRegister(cfr3);    
+    writeRegister(dac);    
     update();
     
     delay(1);
